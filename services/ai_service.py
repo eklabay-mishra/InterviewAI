@@ -47,27 +47,27 @@ class AIService:
         return self._heuristic_resume_analysis(resume_text, target_role)
 
     def generate_interview_questions(self, role_title: str, candidate_skills: list = None, difficulty: str = "Medium", count: int = 20) -> list:
-        """Generates dynamic, role-specific technical interview questions.
+        """Generates dynamic, role-specific interview questions.
         
         Difficulty standards:
-        - Easy: 15 questions, fundamental concepts & syntax.
-        - Medium: 25 questions, framework patterns & practical code implementation.
-        - Hard: 30 questions, advanced low-level internals, memory layout, GIL, microservices, B-Trees.
+        - Easy: 15 questions, fundamental concepts & core definitions.
+        - Medium: 25 questions, practical applications & domain scenarios.
+        - Hard: 30 questions, advanced internals, architecture, executive strategy.
         """
         skills_str = ", ".join(candidate_skills) if candidate_skills else "Core Role Competencies"
         if self.client:
             try:
                 prompt = f"""
-                Generate exactly {count} distinct technical interview questions specifically for the target role '{role_title}'.
+                Generate exactly {count} distinct interview questions specifically tailored for the target role '{role_title}'.
                 Candidate Skills: {skills_str}. Difficulty Level: {difficulty}.
-                Ensure questions strictly match the '{difficulty}' difficulty rating and relate ONLY to {role_title}.
+                IMPORTANT: If the role is HR / Behavioral / Leadership, generate ONLY behavioral, HR management, employee relations, and recruitment questions with ZERO programming or software code jargon.
 
                 Return ONLY a JSON array of objects (no markdown, no extra text) with format:
                 [
                     {{
                         "question_number": 1,
                         "category": "{role_title} Domain",
-                        "question_text": "Role-specific technical question text",
+                        "question_text": "Role-specific question text",
                         "expected_concepts": ["Concept1", "Concept2"]
                     }}
                 ]
@@ -90,15 +90,15 @@ class AIService:
         if not user_answer or len(user_answer.strip()) < 5:
             return {
                 "score": 10,
-                "feedback": "Answer was too brief or empty. Please provide a detailed technical explanation.",
-                "missing_concepts": ["Detailed explanation", "Code examples or architectural reasoning"],
-                "model_answer": "A comprehensive answer should thoroughly explain core concepts, trade-offs, and practical implementations."
+                "feedback": "Answer was too brief or empty. Please provide a thorough explanation with relevant examples.",
+                "missing_concepts": ["Detailed explanation", "Structured methodology or concrete examples"],
+                "model_answer": "A comprehensive response should thoroughly explain core principles, practical examples, and domain best practices."
             }
 
         if self.client:
             try:
                 prompt = f"""
-                You are a Senior Technical Interviewer evaluating a candidate's answer.
+                You are an Expert Interviewer evaluating a candidate's answer.
                 Role: {role_title}
                 Question: {question_text}
                 Candidate Answer: {user_answer}
@@ -108,7 +108,7 @@ class AIService:
                     "score": integer (0 to 100),
                     "feedback": "Constructive feedback on strengths and weaknesses",
                     "missing_concepts": ["Concept1", "Concept2"],
-                    "model_answer": "An ideal senior-level response to this question"
+                    "model_answer": "An ideal response to this question"
                 }}
                 """
                 response = self.client.models.generate_content(
@@ -157,14 +157,14 @@ class AIService:
         return {
             "resume_score": score,
             "experience_years": exp_years,
-            "education": "B.S. in Computer Science / Engineering",
-            "summary": f"Technical professional with experience in software development and proficiency in {', '.join(found_skills[:4])}.",
+            "education": "B.S. in Computer Science / Business Administration",
+            "summary": f"Professional with experience in technical and operational roles, proficient in {', '.join(found_skills[:4])}.",
             "parsed_skills": found_skills,
             "missing_skills": missing_skills if missing_skills else ["Docker", "Kubernetes", "Redis"],
             "recommendations": [
-                "Highlight key metrics and quantitative achievements in recent projects.",
-                f"Add explicit certifications or projects demonstrating {', '.join(missing_skills[:2]) if missing_skills else 'Cloud Infrastructure'}.",
-                "Include GitHub links for production-ready open source contributions."
+                "Highlight key metrics and quantitative achievements in recent roles.",
+                f"Add explicit certifications or projects demonstrating {', '.join(missing_skills[:2]) if missing_skills else 'Domain Mastery'}.",
+                "Include portfolio links for production-ready contributions."
             ]
         }
 
@@ -300,37 +300,37 @@ class AIService:
             {"question_text": "What is Neural Network Activation Functions (ReLU, Sigmoid, Softmax)?", "category": "Deep Learning", "expected_concepts": ["Activation Functions", "ReLU Softmax"]}
         ]
 
-        # --- 5. HR & BEHAVIORAL LEADERSHIP BANK ---
+        # --- 5. PURE HR & BEHAVIORAL LEADERSHIP BANK (ZERO PROGRAMMING JARGON) ---
         hr_easy = [
-            {"question_text": "What is the STAR method (Situation, Task, Action, Result) for answering behavioral interview questions?", "category": "HR Fundamentals", "expected_concepts": ["STAR Method", "Behavioral Interview"]},
-            {"question_text": "How do you handle constructive criticism from a team lead or engineering manager?", "category": "Feedback & Growth", "expected_concepts": ["Constructive Feedback", "Adaptability"]},
-            {"question_text": "Describe a time when you had a technical disagreement with a colleague and how you resolved it professionally.", "category": "Conflict Resolution", "expected_concepts": ["Conflict Resolution", "Professionalism"]},
-            {"question_text": "How do you prioritize your daily tasks when managing multiple competing project deadlines?", "category": "Time Management", "expected_concepts": ["Prioritization", "Time Management"]},
-            {"question_text": "What strategies do you use to maintain team morale and focus during high-pressure sprint releases?", "category": "Teamwork & Culture", "expected_concepts": ["Team Morale", "Stress Management"]},
-            {"question_text": "How do you ensure clear, proactive communication when collaborating with cross-functional remote teams?", "category": "Communication", "expected_concepts": ["Cross-functional Sync", "Remote Communication"]},
-            {"question_text": "Describe how you align your personal professional goals with the company's vision and core values.", "category": "Culture Fit", "expected_concepts": ["Cultural Alignment", "Core Values"]},
-            {"question_text": "How do you handle a situation where a major requirement changes mid-sprint?", "category": "Agility & Flexibility", "expected_concepts": ["Agile Flexibility", "Scope Shift"]},
-            {"question_text": "What steps do you take when you realize you will not be able to meet a committed sprint deadline?", "category": "Accountability", "expected_concepts": ["Proactive Communication", "Accountability"]},
-            {"question_text": "How do you approach onboarding new engineers to ensure they become productive quickly?", "category": "Mentorship", "expected_concepts": ["Onboarding", "Mentorship"]},
-            {"question_text": "What is your approach to giving constructive feedback to peers or team members?", "category": "Peer Feedback", "expected_concepts": ["Empathetic Feedback", "Peer Growth"]},
-            {"question_text": "Describe a technical accomplishment in your career that you are most proud of.", "category": "Achievement", "expected_concepts": ["Ownership", "Measurable Impact"]},
-            {"question_text": "How do you foster an inclusive and equitable environment in team discussions?", "category": "Inclusion", "expected_concepts": ["DEI", "Inclusive Dialogue"]},
-            {"question_text": "What is your strategy for maintaining work-life balance during intense release cycles?", "category": "Well-being", "expected_concepts": ["Burnout Prevention", "Work-life Balance"]},
-            {"question_text": "How do you handle receiving vague or ambiguous project specifications from stakeholders?", "category": "Problem Solving", "expected_concepts": ["Requirement Clarification", "Stakeholder Mgmt"]}
+            {"question_text": "What is the STAR method (Situation, Task, Action, Result) and how do you apply it during structured behavioral interviews?", "category": "HR Fundamentals", "expected_concepts": ["STAR Method", "Behavioral Interview"]},
+            {"question_text": "How do you handle constructive criticism or performance feedback from senior management?", "category": "Feedback & Growth", "expected_concepts": ["Constructive Feedback", "Adaptability"]},
+            {"question_text": "Describe a time when you managed a workplace conflict between two team members and how you reached an amicable resolution.", "category": "Conflict Resolution", "expected_concepts": ["Conflict Resolution", "Professionalism"]},
+            {"question_text": "How do you prioritize competing HR tasks, candidate screenings, and employee onboarding schedules?", "category": "Time Management", "expected_concepts": ["Prioritization", "Time Management"]},
+            {"question_text": "What strategies do you implement to maintain high employee morale and retention during busy recruitment cycles?", "category": "Teamwork & Culture", "expected_concepts": ["Team Morale", "Stress Management"]},
+            {"question_text": "How do you ensure clear and empathetic communication when communicating company policy changes to staff?", "category": "Communication", "expected_concepts": ["Cross-functional Sync", "Remote Communication"]},
+            {"question_text": "Describe how you align recruitment strategies with company culture, mission, and core values.", "category": "Culture Fit", "expected_concepts": ["Cultural Alignment", "Core Values"]},
+            {"question_text": "How do you handle sudden shifts in hiring priorities or unexpected headcount budget adjustments?", "category": "Agility & Flexibility", "expected_concepts": ["Agile Flexibility", "Scope Shift"]},
+            {"question_text": "What steps do you take when an employee reports a workplace grievance or policy concern?", "category": "Accountability", "expected_concepts": ["Proactive Communication", "Accountability"]},
+            {"question_text": "What is your approach to designing a comprehensive onboarding program for new hires?", "category": "Mentorship", "expected_concepts": ["Onboarding", "Mentorship"]},
+            {"question_text": "How do you deliver constructive performance feedback to employees while keeping them motivated?", "category": "Peer Feedback", "expected_concepts": ["Empathetic Feedback", "Peer Growth"]},
+            {"question_text": "Describe an HR initiative or recruitment campaign you led that had a measurable positive impact on company culture.", "category": "Achievement", "expected_concepts": ["Ownership", "Measurable Impact"]},
+            {"question_text": "How do you foster diversity, equity, and inclusion (DEI) in candidate sourcing and hiring panels?", "category": "Inclusion", "expected_concepts": ["DEI", "Inclusive Dialogue"]},
+            {"question_text": "What methods do you use to assess candidate soft skills and emotional intelligence (EQ) during interviews?", "category": "Behavioral Evaluation", "expected_concepts": ["Soft Skills", "Emotional Intelligence"]},
+            {"question_text": "How do you handle receiving incomplete or ambiguous position requisitions from department hiring managers?", "category": "Problem Solving", "expected_concepts": ["Requirement Clarification", "Stakeholder Mgmt"]}
         ]
 
         hr_medium = [
-            {"question_text": "How do you manage underperforming team members while balancing team throughput and morale?", "category": "Performance Management", "expected_concepts": ["Performance Improvement Plan (PIP)", "Coaching"]},
-            {"question_text": "Describe a situation where you negotiated scope tradeoffs between engineering leads and executive stakeholders.", "category": "Stakeholder Negotiation", "expected_concepts": ["Scope Tradeoffs", "Executive Alignment"]},
-            {"question_text": "How do you foster an environment of psychological safety where engineers feel comfortable taking calculated risks?", "category": "Leadership Culture", "expected_concepts": ["Psychological Safety", "Blameless Post-mortems"]},
-            {"question_text": "Walk through your strategy for mediating a deep architectural disagreement between two principal engineers.", "category": "Conflict Mediation", "expected_concepts": ["Mediation", "Root Cause Resolution"]},
-            {"question_text": "How do you retain top technical talent when competing offers arise in an aggressive talent market?", "category": "Talent Retention", "expected_concepts": ["Career Progression", "Engagement"]}
+            {"question_text": "How do you structure a Performance Improvement Plan (PIP) for an underperforming employee with clear milestones?", "category": "Performance Management", "expected_concepts": ["Performance Improvement Plan (PIP)", "Coaching"]},
+            {"question_text": "Describe a scenario where you negotiated compensation packages or offer terms with senior candidate hires.", "category": "Stakeholder Negotiation", "expected_concepts": ["Compensation Negotiation", "Executive Alignment"]},
+            {"question_text": "How do you foster an environment of psychological safety and open feedback across organizational teams?", "category": "Leadership Culture", "expected_concepts": ["Psychological Safety", "Open Dialogue"]},
+            {"question_text": "Walk through your methodology for conducting an exit interview and translating employee feedback into actionable retention policies.", "category": "Conflict Mediation", "expected_concepts": ["Exit Interviews", "Root Cause Resolution"]},
+            {"question_text": "How do you handle key employee retention when competitive job offers threaten talent turnover?", "category": "Talent Retention", "expected_concepts": ["Career Progression", "Employee Engagement"]}
         ]
 
         hr_hard = [
-            {"question_text": "Describe your framework for leading organizational change management during a major company pivot or engineering restructuring.", "category": "Organizational Leadership", "expected_concepts": ["Change Management Framework", "Transparent Communication"]},
-            {"question_text": "How do you handle ethical dilemmas in executive leadership, such as pressure to compromise security or privacy for quarterly targets?", "category": "Executive Ethics", "expected_concepts": ["Ethical Leadership", "Risk Management"]},
-            {"question_text": "How do you build and execute a multi-year technical talent acquisition and retention strategy to scale an engineering organization from 50 to 500 engineers?", "category": "Strategic HR Scaling", "expected_concepts": ["Talent Pipeline", "Employer Branding", "Scalable Hiring"]}
+            {"question_text": "Describe your executive change management framework for guiding employees through major organizational restructurings or mergers.", "category": "Organizational Leadership", "expected_concepts": ["Change Management Framework", "Transparent Communication"]},
+            {"question_text": "How do you handle ethical dilemmas in HR management, such as executive pressure to bypass hiring policies or compliance guidelines?", "category": "Executive Ethics", "expected_concepts": ["Ethical Leadership", "Risk Management"]},
+            {"question_text": "How do you design and execute a scalable, multi-year talent acquisition strategy to grow an organization from 50 to 500 employees?", "category": "Strategic HR Scaling", "expected_concepts": ["Talent Pipeline", "Employer Branding", "Scalable Hiring"]}
         ]
 
         # Select target bank based on role keyword & difficulty
@@ -368,16 +368,16 @@ class AIService:
             missing.append("Indexing strategy")
         if "flask" in question.lower() and "blueprint" not in answer.lower():
             missing.append("Blueprint modularization")
-        if "security" in question.lower() and "csrf" not in answer.lower():
-            missing.append("CSRF Protection mechanisms")
+        if "star" in question.lower() and "action" not in answer.lower():
+            missing.append("STAR methodology details")
         if not missing:
-            missing = ["In-depth edge-case analysis", "Performance benchmarking details"]
+            missing = ["Structured examples", "Measurable outcomes & impact"]
 
         return {
             "score": score,
-            "feedback": "Strong technical foundation demonstrated. Answer effectively addresses core principles with clear terminology.",
+            "feedback": "Strong structured response demonstrated. Answer effectively addresses core principles with clear communication.",
             "missing_concepts": missing,
-            "model_answer": "An ideal response provides a clear high-level architecture definition, code snippets illustrating implementation, edge case handling, and scalability considerations."
+            "model_answer": "An ideal response provides a clear situation overview, specific actions taken, measurable results achieved, and key lessons learned."
         }
 
     def _clean_json_response(self, raw_text: str) -> str:

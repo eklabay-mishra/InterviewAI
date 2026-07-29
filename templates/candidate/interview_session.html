@@ -25,7 +25,7 @@
         <div class="glass-card p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h5 class="text-white font-weight-bold mb-0">
-                    <span class="text-primary me-2">Q{{ r.question_number }}.</span> {{ r.category }} Technical Question
+                    <span class="text-primary me-2">Q{{ r.question_number }}.</span> {{ r.category }} Question
                 </h5>
                 <button class="btn btn-sm btn-outline-info speak-question-btn" data-text="{{ r.question_text }}">
                     <i class="bi bi-volume-up-fill me-1"></i> Listen to Question
@@ -36,8 +36,8 @@
 
             <!-- User Answer Form -->
             <div class="mb-3">
-                <label class="form-label text-muted small font-weight-bold">Your Technical Response</label>
-                <textarea id="answer-input-{{ r.id }}" class="form-control glass-input" rows="4" placeholder="Explain your answer clearly, including architectural concepts, code logic, and edge cases...">{{ r.user_answer or '' }}</textarea>
+                <label class="form-label text-muted small font-weight-bold">Your Answer / Response</label>
+                <textarea id="answer-input-{{ r.id }}" class="form-control glass-input" rows="4" placeholder="Explain your response clearly with relevant examples, key principles, or structured methodology (e.g. STAR framework)...">{{ r.user_answer or '' }}</textarea>
             </div>
 
             <div class="d-flex justify-content-end mb-2">

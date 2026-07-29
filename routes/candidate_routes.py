@@ -142,9 +142,12 @@ def start_mock_interview():
     duration_minutes = int(request.form.get("duration", "30"))
 
     role_title = f"{category} - {target_role}"
-    candidate_skills = user.candidate_profile.parsed_skills if user.candidate_profile else ["Python", "Flask", "SQL"]
+    if category == "HR" or "hr" in target_role.lower():
+        candidate_skills = ["HR Management", "Behavioral Interviewing", "Talent Acquisition", "Employee Relations", "Performance Management"]
+    else:
+        candidate_skills = user.candidate_profile.parsed_skills if (user.candidate_profile and user.candidate_profile.parsed_skills) else ["Python", "Flask", "SQL"]
 
-    # Generate 20 technical questions via AI Service
+    # Generate interview questions via AI Service
     ai_service = AIService()
     questions_data = ai_service.generate_interview_questions(role_title, candidate_skills, difficulty=difficulty, count=num_questions)
 
