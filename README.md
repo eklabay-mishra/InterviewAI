@@ -18,10 +18,7 @@ An enterprise-grade, recruitment & AI evaluation platform built with **Python**,
 ### 1. Enterprise Recruiter SaaS Dashboard & Analytics
 ![Enterprise Recruiter Dashboard](static/images/recruiter_dashboard.png)
 
-### 2. Candidate AI Workspace & Evaluation Platform
-![Candidate AI Workspace](static/images/candidate_workspace.png)
-
-### 3. Authentication & 1-Click Demo Login Portal
+### 2. Authentication & 1-Click Demo Login Portal
 ![Authentication & Demo Login Portal](static/images/login_portal.png)
 
 ---
