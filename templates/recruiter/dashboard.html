@@ -532,7 +532,7 @@
 <!-- ================================================================= -->
 <div class="row g-4">
     <!-- Chart 1: Interview Session Trends (Line Chart) -->
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <div class="glass-card p-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h6 class="text-white font-weight-bold mb-0">
@@ -546,8 +546,23 @@
         </div>
     </div>
 
-    <!-- Chart 2: Candidate Evaluation Performance (Bar Chart) -->
-    <div class="col-lg-6">
+    <!-- Chart 2: Resume Scores by Department (Bar Chart - Reference Design) -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-bar-chart-steps text-warning me-2"></i>Resume Scores by Department
+                </h6>
+                <span class="badge bg-warning bg-opacity-20 text-warning">Dept Metrics</span>
+            </div>
+            <div style="min-height: 280px; position: relative;">
+                <canvas id="recruiterDeptChart" height="145"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Candidate Evaluation Performance (Bar Chart) -->
+    <div class="col-lg-4">
         <div class="glass-card p-4 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h6 class="text-white font-weight-bold mb-0">

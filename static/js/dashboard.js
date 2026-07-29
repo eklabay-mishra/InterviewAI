@@ -71,12 +71,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const recruiterSkillsCanvas = document.getElementById('recruiterSkillsChart');
     const recruiterExpCanvas = document.getElementById('recruiterExpChart');
     const recruiterCompletionCanvas = document.getElementById('recruiterCompletionChart');
+    const recruiterDeptCanvas = document.getElementById('recruiterDeptChart');
 
-    if (recruiterTrendCanvas || recruiterPerformanceCanvas || recruiterDistributionCanvas || recruiterSkillsCanvas) {
+    if (recruiterTrendCanvas || recruiterPerformanceCanvas || recruiterDistributionCanvas || recruiterSkillsCanvas || recruiterDeptCanvas) {
         fetch('/api/v1/analytics/recruiter')
             .then(res => res.json())
             .then(data => {
                 if (!data.success) return;
+
+                // Resume Scores by Department Bar Chart (Reference Design)
+                if (recruiterDeptCanvas && data.department_scores) {
+                    new Chart(recruiterDeptCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: data.department_scores.labels,
+                            datasets: [{
+                                label: 'Avg Resume Score',
+                                data: data.department_scores.data,
+                                backgroundColor: ['#06B6D4', '#818CF8', '#F59E0B', '#10B981', '#EC4899'],
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#CBD5E1' } },
+                                x: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#CBD5E1' } }
+                            }
+                        }
+                    });
+                }
 
                 // 1. Interview Trend Line Chart
                 if (recruiterTrendCanvas) {
