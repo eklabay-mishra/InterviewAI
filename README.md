@@ -66,6 +66,11 @@ An enterprise-grade, recruitment & AI evaluation platform built with **Python**,
 - **History & Attempt Comparison**:
   - Historical session records, weak topic focus areas breakdown, and side-by-side attempt comparison modal.
 
+### 🔔 3. System Notifications & Interactive Redirection
+- **Real-Time Notification Hub**: Interactive System Notifications menu displaying candidate sync updates, AI scorecard readiness, and active interview sessions.
+- **Clickable Navigation**: 100% clickable notifications with automatic page redirection (e.g. Candidates Roster, Export Reports, Interview Manager) and AJAX mark-as-read tracking.
+- **High-Contrast Dark Glassmorphism**: High-contrast typography and non-overlapping floating z-index layering (`z-index: 99999`) for smooth UI experience across screen sizes.
+
 ---
 
 ## 🏗️ Architecture & Technology Stack
@@ -154,7 +159,7 @@ erDiagram
 
 ### 1. Clone Repository & Setup Virtual Environment
 ```bash
-git clone https://github.com/your-username/InterviewAI.git
+git clone https://github.com/eklabay-mishra/InterviewAI.git
 cd InterviewAI
 
 python3 -m venv .venv
