@@ -10,6 +10,14 @@ An enterprise-grade, recruitment & AI evaluation platform built with **Python**,
 
 ---
 
+## 🖼️ Application Screenshots & UI Showcase
+
+| Enterprise Recruiter SaaS Dashboard | Candidate AI Interview Workspace |
+| :---: | :---: |
+| ![Recruiter Dashboard](static/images/recruiter_dashboard.jpg) | ![Candidate AI Workspace](static/images/candidate_workspace.jpg) |
+
+---
+
 ## 🌟 Key Features & Dual-Portal Architecture
 
 ### 👔 1. Recruiter Portal (Default Recruiter: Eklabay Mishra - Senior Technical Recruiter)
