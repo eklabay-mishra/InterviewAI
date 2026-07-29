@@ -1,10 +1,13 @@
 # InterviewAI – AI-Powered Technical Interview & Recruitment Platform
 
+[![Live Production Demo](https://img.shields.io/badge/Live%20Demo-interviewai--h71h.onrender.com-brightgreen?style=for-the-badge&logo=render)](https://interviewai-h71h.onrender.com)
 [![Python Version](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Flask-3.0+-green.svg)](https://flask.palletsprojects.org/)
 [![Database](https://img.shields.io/badge/MySQL-8.0+%2F%20SQLAlchemy-orange.svg)](https://www.mysql.com/)
 [![AI Engine](https://img.shields.io/badge/Google%20Gemini-API%20Integration-purple.svg)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
+
+🌐 **LIVE PRODUCTION APP**: **[https://interviewai-h71h.onrender.com](https://interviewai-h71h.onrender.com)**
 
 An enterprise-grade, recruitment & AI evaluation platform built with **Python**, **Flask**, **MySQL**, **SQLAlchemy**, **Google Gemini AI**, **Bootstrap 5**, and **Chart.js**. **InterviewAI** streamlines technical recruitment for Senior Recruiters and interview preparation for candidates through AI resume parsing, dynamic role-specific mock interviews, automated MCQ testing, and multi-format reports.
 
@@ -180,10 +183,10 @@ App is live at **http://127.0.0.1:5001**.
 
 ## 🔑 Pre-Configured Test Accounts (With 1-Click Demo Login)
 
-| Role | Name | Email | Password | Direct 1-Click Demo Login |
-| :--- | :--- | :--- | :--- | :--- |
-| **Recruiter** | Eklabay Mishra | `recruiter@interviewai.com` | `recruiter123` | `http://127.0.0.1:5001/auth/demo-recruiter` |
-| **Candidate** | XYZ | `candidate@interviewai.com` | `candidate123` | `http://127.0.0.1:5001/auth/demo-candidate` |
+| Role | Name | Email | Password | Live 1-Click Demo Login | Local 1-Click Demo Login |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Recruiter** | Eklabay Mishra | `recruiter@interviewai.com` | `recruiter123` | [Live Recruiter Demo](https://interviewai-h71h.onrender.com/auth/demo-recruiter) | `http://127.0.0.1:5001/auth/demo-recruiter` |
+| **Candidate** | XYZ | `candidate@interviewai.com` | `candidate123` | [Live Candidate Demo](https://interviewai-h71h.onrender.com/auth/demo-candidate) | `http://127.0.0.1:5001/auth/demo-candidate` |
 
 ---
 
