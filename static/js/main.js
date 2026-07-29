@@ -31,18 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     };
 
-    // Mark notification read via AJAX
+    // Mark notification read via AJAX and navigate to relevant target URL
+    window.markNotificationRead = function(notifId, targetUrl) {
+        fetch(`/api/v1/notifications/mark-read/${notifId}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(res => {
+                if (targetUrl && targetUrl !== '#' && targetUrl !== 'javascript:void(0)') {
+                    window.location.href = targetUrl;
+                }
+            })
+            .catch(err => {
+                if (targetUrl && targetUrl !== '#' && targetUrl !== 'javascript:void(0)') {
+                    window.location.href = targetUrl;
+                }
+            });
+    };
+
     document.querySelectorAll('.mark-read-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const notifId = btn.getAttribute('data-id');
-            fetch(`/api/v1/notifications/mark-read/${notifId}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        const item = document.getElementById(`notif-item-${notifId}`);
-                        if (item) item.remove();
-                    }
-                });
+            window.markNotificationRead(notifId);
         });
     });
 });

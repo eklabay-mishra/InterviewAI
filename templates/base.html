@@ -97,16 +97,31 @@
                             </span>
                             {% endif %}
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark glass-card p-2" style="width: 320px;">
-                            <li class="dropdown-header text-primary font-weight-bold">Notifications</li>
-                            <li><hr class="dropdown-divider"></li>
+                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow-lg" style="width: 340px; background: #0f172a !important; border: 1px solid rgba(99,102,241,0.4) !important; z-index: 2500 !important; margin-top: 10px;">
+                            <li class="dropdown-header text-white font-weight-extrabold fs-6 border-bottom border-secondary pb-2 mb-2"><i class="bi bi-bell-fill text-warning me-2"></i>Notifications</li>
                             {% for n in user_notifications %}
-                            <li class="p-2 border-bottom border-secondary small d-flex justify-content-between align-items-center" id="notif-item-{{ n.id }}">
-                                <span>{{ n.message }}</span>
-                                <button class="btn btn-sm btn-link text-muted mark-read-btn" data-id="{{ n.id }}"><i class="bi bi-check2"></i></button>
-                            </li>
+                                {% set target_link = url_for('recruiter.candidates') if session.get('user_role') == 'recruiter' else url_for('candidate.dashboard') %}
+                                {% if 'Interview' in n.message or 'Score' in n.message %}
+                                    {% set target_link = url_for('recruiter.reports') if session.get('user_role') == 'recruiter' else url_for('candidate.history') %}
+                                {% elif 'MCQ' in n.message or 'Test' in n.message %}
+                                    {% set target_link = url_for('recruiter.mcq') if session.get('user_role') == 'recruiter' else url_for('candidate.mcq_tests') %}
+                                {% elif 'Resume' in n.message %}
+                                    {% set target_link = url_for('recruiter.candidates') if session.get('user_role') == 'recruiter' else url_for('candidate.resume_analyzer') %}
+                                {% endif %}
+                                <li class="mb-1" id="notif-item-{{ n.id }}">
+                                    <a class="dropdown-item text-wrap small rounded p-2 text-white d-flex align-items-center justify-content-between" style="color: #ffffff !important;" href="{{ target_link }}" onclick="markNotificationRead({{ n.id }}, '{{ target_link }}')">
+                                        <div class="d-flex align-items-start gap-2">
+                                            <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                                            <div>
+                                                <div class="text-white font-weight-bold">{{ n.message }}</div>
+                                                <div class="text-muted extra-small mt-1">{{ n.created_at.strftime('%b %d, %H:%M') }}</div>
+                                            </div>
+                                        </div>
+                                        <i class="bi bi-chevron-right text-muted extra-small"></i>
+                                    </a>
+                                </li>
                             {% else %}
-                            <li class="p-2 text-muted small text-center">No new notifications</li>
+                                <li class="dropdown-item text-muted small text-center py-3"><i class="bi bi-check-circle me-1 text-success"></i> No new notifications</li>
                             {% endfor %}
                         </ul>
                     </div>
