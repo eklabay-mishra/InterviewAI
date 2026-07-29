@@ -70,7 +70,17 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Glassmorphism Components */
+/* Glassmorphism Components & Stacking Context */
+.hero-welcome-card {
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+.kpi-card {
+    position: relative;
+    z-index: 1 !important;
+}
+
 .glass-card {
     background: var(--bg-card);
     backdrop-filter: var(--glass-backdrop);
@@ -82,10 +92,12 @@ a:hover {
 }
 
 .dropdown-menu, .dropdown-menu-dark {
+    position: absolute !important;
+    z-index: 99999 !important;
     background-color: #0f172a !important;
-    border: 1px solid rgba(99, 102, 241, 0.4) !important;
-    z-index: 2500 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+    background: #0f172a !important;
+    border: 1px solid rgba(99, 102, 241, 0.5) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.95) !important;
 }
 
 .dropdown-menu .dropdown-header {
