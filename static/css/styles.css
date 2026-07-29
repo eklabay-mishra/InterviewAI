@@ -81,9 +81,27 @@ a:hover {
     overflow: visible !important;
 }
 
-.dropdown-menu {
-    z-index: 1050 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+.dropdown-menu, .dropdown-menu-dark {
+    background-color: #0f172a !important;
+    border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    z-index: 2500 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+}
+
+.dropdown-menu .dropdown-header {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.dropdown-menu .dropdown-item {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+    color: #ffffff !important;
+    background-color: rgba(99, 102, 241, 0.3) !important;
 }
 
 .glass-card:hover {
