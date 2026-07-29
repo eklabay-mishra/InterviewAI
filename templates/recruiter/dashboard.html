@@ -122,22 +122,6 @@
         </div>
 
         <div class="d-flex align-items-center gap-2">
-            <!-- Notification Badge Dropdown -->
-            <div class="dropdown me-1">
-                <button class="btn btn-outline-light position-relative p-2 px-3" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill text-warning fs-5"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        3
-                    </span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end p-3 shadow-lg" style="min-width: 330px; background: #0f172a !important; border: 1px solid rgba(99,102,241,0.4) !important; z-index: 2500 !important; margin-top: 10px;" aria-labelledby="notifDropdown">
-                    <li class="dropdown-header text-white font-weight-extrabold fs-6 border-bottom border-secondary pb-2 mb-2"><i class="bi bi-bell-fill text-warning me-2"></i>System Notifications</li>
-                    <li><a class="dropdown-item text-white small rounded py-2 mb-1 d-flex align-items-center justify-content-between" style="color: #ffffff !important;" href="{{ url_for('recruiter.candidates') }}"><span><i class="bi bi-person-check-fill text-success me-2"></i> 100 Candidates Auto-Synced</span><i class="bi bi-chevron-right text-muted extra-small"></i></a></li>
-                    <li><a class="dropdown-item text-white small rounded py-2 mb-1 d-flex align-items-center justify-content-between" style="color: #ffffff !important;" href="{{ url_for('recruiter.reports') }}"><span><i class="bi bi-check-all text-info me-2"></i> {{ completed_interviews }} AI Scorecards Ready</span><i class="bi bi-chevron-right text-muted extra-small"></i></a></li>
-                    <li><a class="dropdown-item text-white small rounded py-2 d-flex align-items-center justify-content-between" style="color: #ffffff !important;" href="{{ url_for('recruiter.jobs') }}"><span><i class="bi bi-lightning-fill text-warning me-2"></i> {{ active_interviews }} Active AI Interviews</span><i class="bi bi-chevron-right text-muted extra-small"></i></a></li>
-                </ul>
-            </div>
-
             <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-primary-glow py-2.5">
                 <i class="bi bi-plus-circle me-1"></i> Create Interview
             </a>
