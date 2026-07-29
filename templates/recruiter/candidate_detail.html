@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block page_title %}Candidate Deep-Dive & Assessment Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column: Candidate Summary Card -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 mb-4">
+            <div class="text-center mb-4">
+                <div class="avatar-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle fs-2 font-weight-bold" style="width: 70px; height: 70px;">
+                    {{ candidate_user.name[0] }}
+                </div>
+                <h4 class="text-white font-weight-bold mb-1">{{ candidate_user.name }}</h4>
+                <p class="text-muted small mb-2">{{ candidate_user.email }}</p>
+                <div class="badge bg-primary px-3 py-2 fs-6 mb-2">AI Resume Score: {{ profile.resume_score }}/100</div>
+                <div class="text-muted small"><i class="bi bi-briefcase me-1"></i> {{ candidate_user.target_role }}</div>
+            </div>
+
+            <div class="border-top border-secondary pt-3">
+                <div class="mb-2"><strong>Experience:</strong> <span class="text-light">{{ profile.experience_years }} Years</span></div>
+                <div class="mb-3"><strong>Education:</strong> <span class="text-light">{{ profile.education }}</span></div>
+                {% if profile.resume_filename %}
+                <div class="mb-3">
+                    <strong>Resume Document:</strong><br>
+                    <span class="text-info small"><i class="bi bi-paperclip me-1"></i> {{ profile.resume_filename }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Executive Summary -->
+        <div class="glass-card p-4">
+            <h6 class="text-primary font-weight-bold mb-2"><i class="bi bi-cpu-fill me-2"></i>AI Executive Summary</h6>
+            <p class="text-light bg-dark p-3 rounded border border-secondary small mb-0">
+                {{ profile.summary or 'Candidate demonstrates high proficiency in core technical domains.' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Right Column: Skills, Projects, Certificates, Interviews & MCQ -->
+    <div class="col-lg-8">
+        <!-- Technical Skills & Skill Gaps -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-tools text-primary me-2"></i>Extracted Technical Skills & Skill Gap Analysis</h5>
+            
+            <div class="mb-3">
+                <strong class="text-success small d-block mb-1">Parsed Core Skills:</strong>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in profile.parsed_skills %}
+                    <span class="skill-pill"><i class="bi bi-check2 me-1"></i> {{ skill }}</span>
+                    {% else %}
+                    <span class="text-muted small">No skills parsed yet.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <strong class="text-danger small d-block mb-1">Missing Skill Gaps:</strong>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for m_skill in profile.missing_skills %}
+                    <span class="skill-pill missing"><i class="bi bi-x-circle me-1"></i> {{ m_skill }}</span>
+                    {% else %}
+                    <span class="text-muted small">No major gaps identified.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects & Certifications -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-folder-check text-info me-2"></i>Projects & Certifications</h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h6 class="text-info font-weight-bold mb-2">Featured Projects</h6>
+                    {% for p in profile.projects %}
+                    <div class="p-3 bg-dark rounded border border-secondary mb-2">
+                        <div class="font-weight-bold text-white mb-1">{{ p.title }}</div>
+                        <div class="small text-muted mb-2">Tech: {{ p.tech }}</div>
+                        {% if p.url %}
+                        <a href="{{ p.url }}" target="_blank" class="small text-primary text-decoration-none"><i class="bi bi-github me-1"></i> View Repository</a>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted small">No project records found.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-warning font-weight-bold mb-2">Verified Certifications</h6>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        {% for cert in profile.certificates %}
+                        <li class="list-group-item bg-transparent text-light border-secondary small px-0">
+                            <i class="bi bi-award text-warning me-2 fs-6"></i> {{ cert }}
+                        </li>
+                        {% else %}
+                        <li class="text-muted small">No certifications recorded.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Mock Interview History & Detailed Feedback -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-robot text-primary me-2"></i>AI Mock Interview Performance & Feedback</h5>
+            
+            {% for session in interviews %}
+            <div class="p-3 bg-dark rounded border border-secondary mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="font-weight-bold text-white fs-6">{{ session.role_title }}</span>
+                    <span class="badge bg-primary fs-6">Score: {{ session.overall_score }}%</span>
+                </div>
+                <p class="text-muted small mb-2">Status: <span class="text-capitalize text-info">{{ session.status }}</span> | Date: {{ session.created_at.strftime('%Y-%m-%d') }}</p>
+
+                <!-- Detailed Responses -->
+                {% for r in session.responses.all() %}
+                <div class="mt-2 p-2 bg-black rounded border border-secondary">
+                    <div class="small font-weight-bold text-light mb-1">Q{{ r.question_number }}: {{ r.question_text }}</div>
+                    <div class="small text-muted mb-1">Answer: {{ r.user_answer or 'No answer provided' }}</div>
+                    {% if r.feedback %}
+                    <div class="small text-primary"><strong>AI Feedback:</strong> {{ r.feedback }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted small mb-0">No mock interview records for this candidate.</p>
+            {% endfor %}
+        </div>
+
+        <!-- MCQ Test Results -->
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-ui-checks text-success me-2"></i>MCQ Assessment Results</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Date</th>
+                            <th>Assessment Name</th>
+                            <th>Correct Answers</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mcq in mcq_results %}
+                        <tr>
+                            <td class="small">{{ mcq.completed_at.strftime('%Y-%m-%d') }}</td>
+                            <td class="font-weight-bold text-white">{{ mcq.test.title if mcq.test else 'MCQ Assessment' }}</td>
+                            <td>{{ mcq.correct_answers }} / {{ mcq.total_questions }}</td>
+                            <td><span class="badge bg-success fs-6">{{ mcq.score }}%</span></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-muted text-center py-2">No MCQ test records available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block page_title %}Recruiter MCQ Test Builder & Quiz Management{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Form -->
+    <div class="col-lg-5">
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-ui-checks text-primary me-2"></i>Create Technical MCQ Assessment</h5>
+
+            <form action="{{ url_for('recruiter.mcq') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Assessment Title</label>
+                    <input type="text" name="title" class="form-control glass-input" placeholder="e.g. Python Core & Async Programming" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Category</label>
+                        <select name="category" class="form-select glass-input">
+                            <option value="Python" selected>Python Technical</option>
+                            <option value="SQL">SQL & Database Architecture</option>
+                            <option value="OOP">OOP & System Design</option>
+                            <option value="ML">Machine Learning & AI</option>
+                            <option value="HR">HR & Behavioral Leadership</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Difficulty</label>
+                        <select name="difficulty" class="form-select glass-input">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Total Questions</label>
+                        <input type="number" name="total_questions" class="form-control glass-input" value="20" min="5" max="50">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Duration (Minutes)</label>
+                        <input type="number" name="duration_minutes" class="form-control glass-input" value="30" min="10" max="180">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Passing Marks (%)</label>
+                        <input type="number" name="passing_marks" class="form-control glass-input" value="70" min="40" max="100">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Attempts Allowed</label>
+                        <input type="number" name="attempts_allowed" class="form-control glass-input" value="3" min="1" max="10">
+                    </div>
+                </div>
+
+                <!-- Toggles: Shuffle & Negative Marking -->
+                <div class="glass-card p-3 mb-3">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="shuffle_questions" id="shuffleToggle" checked>
+                        <label class="form-check-input-label text-white small font-weight-bold" for="shuffleToggle">
+                            <i class="bi bi-shuffle me-1 text-primary"></i> Shuffle Questions Order
+                        </label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="negative_marking" id="negativeToggle">
+                        <label class="form-check-input-label text-white small font-weight-bold" for="negativeToggle">
+                            <i class="bi bi-dash-circle me-1 text-danger"></i> Enable Negative Marking (-0.25)
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 mt-2">
+                    <i class="bi bi-plus-lg me-1"></i> Create MCQ Assessment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active MCQ Tests Table with Candidates Attempted & Average Score -->
+    <div class="col-lg-7">
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-journal-text text-info me-2"></i>Available Technical MCQ Assessments</h5>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Title & Category</th>
+                            <th>Difficulty</th>
+                            <th>Questions & Time</th>
+                            <th>Candidates Attempted</th>
+                            <th>Average Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in enriched_tests %}
+                        {% set t = item.test %}
+                        <tr>
+                            <td>
+                                <div class="font-weight-bold text-white fs-6">{{ t.title }}</div>
+                                <span class="badge bg-info bg-opacity-20 text-info">{{ t.category }}</span>
+                                {% if t.negative_marking %}
+                                <span class="badge bg-danger bg-opacity-20 text-danger ms-1">-0.25 Neg</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.difficulty == 'Hard' %}
+                                <span class="badge bg-danger">Hard</span>
+                                {% elif t.difficulty == 'Easy' %}
+                                <span class="badge bg-success">Easy</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Medium</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="text-white small font-weight-bold">{{ t.total_questions }} Qs</div>
+                                <div class="small text-muted"><i class="bi bi-clock me-1"></i>{{ t.duration_minutes }} Mins</div>
+                            </td>
+                            <!-- Candidates Attempted -->
+                            <td>
+                                <span class="badge bg-primary fs-6"><i class="bi bi-people-fill me-1"></i> {{ item.attempted_count }} Candidates</span>
+                            </td>
+                            <!-- Average Score -->
+                            <td>
+                                {% if item.attempted_count > 0 %}
+                                <span class="badge bg-success fs-6">{{ item.avg_score }}%</span>
+                                {% else %}
+                                <span class="text-muted small">No Attempts Yet</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-muted text-center py-4">No tests created yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

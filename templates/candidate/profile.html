@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block page_title %}Candidate Profile & Portfolio Management{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('candidate.profile') }}" method="POST">
+    <div class="row g-4">
+        <!-- Left Column: Personal Info & Resume Widget -->
+        <div class="col-lg-4">
+            <!-- Profile Card Header -->
+            <div class="glass-card p-4 text-center mb-4">
+                <div class="avatar-circle bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle fs-2 font-weight-bold" style="width: 80px; height: 80px;">
+                    {{ user.name[0] }}
+                </div>
+                <h4 class="text-white font-weight-bold mb-1">{{ user.name }}</h4>
+                <p class="text-muted small mb-2">{{ user.email }}</p>
+                <div class="badge bg-primary px-3 py-2 fs-6 mb-3">AI Resume Score: {{ profile.resume_score }}/100</div>
+                <div class="text-muted small mb-3"><i class="bi bi-briefcase me-1"></i> {{ user.target_role or 'Python Full Stack Developer' }}</div>
+            </div>
+
+            <!-- Resume File Management & Version History -->
+            <div class="glass-card p-4 mb-4">
+                <h6 class="text-white font-weight-bold mb-3"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Resume Version History</h6>
+                
+                {% if profile.resume_filename %}
+                <div class="p-3 bg-dark rounded border border-secondary mb-3">
+                    <div class="small font-weight-bold text-white mb-1"><i class="bi bi-file-earmark-check text-success me-1"></i> {{ profile.resume_filename }} (Active v2.0)</div>
+                    <div class="small text-muted mb-2">Uploaded: {{ profile.uploaded_at.strftime('%Y-%m-%d') if profile.uploaded_at else 'Recent' }}</div>
+                    <a href="{{ url_for('candidate.resume_analyzer') }}" class="btn btn-sm btn-outline-primary w-100">
+                        <i class="bi bi-arrow-repeat me-1"></i> Re-Analyze Resume
+                    </a>
+                </div>
+                <div class="extra-small text-muted">
+                    <div class="d-flex justify-content-between py-1 border-bottom border-secondary">
+                        <span>resume_v1_old.pdf (Score: 78)</span>
+                        <span>2026-07-15</span>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-3">No resume uploaded yet.</p>
+                <a href="{{ url_for('candidate.resume_analyzer') }}" class="btn btn-primary-glow w-100">
+                    <i class="bi bi-cloud-upload me-1"></i> Upload Resume PDF
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Social Links Section -->
+            <div class="glass-card p-4">
+                <h6 class="text-white font-weight-bold mb-3"><i class="bi bi-link-45deg text-info me-2"></i>Social & Portfolio Links</h6>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold"><i class="bi bi-github me-1"></i> GitHub Profile</label>
+                    <input type="url" name="github" class="form-control glass-input" value="{{ profile.github or 'https://github.com/xyz' }}" placeholder="https://github.com/username">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold"><i class="bi bi-linkedin me-1"></i> LinkedIn Profile</label>
+                    <input type="url" name="linkedin" class="form-control glass-input" value="{{ profile.linkedin or 'https://linkedin.com/in/xyz' }}" placeholder="https://linkedin.com/in/username">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold"><i class="bi bi-globe me-1"></i> Portfolio Website</label>
+                    <input type="url" name="portfolio" class="form-control glass-input" value="{{ profile.portfolio or 'https://xyz.dev' }}" placeholder="https://yourportfolio.dev">
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Personal Information, Skills Tag Pills, Education & Projects -->
+        <div class="col-lg-8">
+            <!-- 1. Personal Information Section -->
+            <div class="glass-card p-4 mb-4">
+                <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-person-badge-fill text-primary me-2"></i>Personal Information</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small font-weight-bold">Full Name</label>
+                        <input type="text" name="name" class="form-control glass-input" value="{{ user.name }}" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small font-weight-bold">Email Address (Read Only)</label>
+                        <input type="email" class="form-control glass-input text-muted" value="{{ user.email }}" readonly>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small font-weight-bold">Phone Number</label>
+                        <input type="text" name="phone" class="form-control glass-input" value="{{ profile.phone or '+1 (555) 234-5678' }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small font-weight-bold">Target Role Title</label>
+                        <input type="text" name="target_role" class="form-control glass-input" value="{{ user.target_role or 'Python Full Stack Developer' }}">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label text-muted small font-weight-bold">Professional Bio</label>
+                        <textarea name="bio" class="form-control glass-input" rows="3" placeholder="Brief 2-3 sentence overview of your technical background">{{ user.bio or 'Senior Python Full Stack Engineer specializing in Flask, MySQL, REST API design, and React.' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Skills (Tag Style Pills) & Auto-Suggestions Section -->
+            <div class="glass-card p-4 mb-4">
+                <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-tools text-warning me-2"></i>Technical Skills & Auto-Suggestions</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Current Technical Skills (Comma Separated)</label>
+                    <input type="text" id="skills-input" name="skills" class="form-control glass-input" value="{{ profile.skills_str or 'Python, SQL, Flask, REST API, Git, Docker, MySQL, React' }}">
+                </div>
+
+                <div class="mb-2">
+                    <span class="text-muted extra-small d-block mb-1">Click auto-suggestions to add to your skills list:</span>
+                    <div class="d-flex flex-wrap gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-secondary extra-small" onclick="addSuggestedSkill('FastAPI')">+ FastAPI</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary extra-small" onclick="addSuggestedSkill('PyTest')">+ PyTest</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary extra-small" onclick="addSuggestedSkill('Pandas')">+ Pandas</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary extra-small" onclick="addSuggestedSkill('Redis')">+ Redis</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary extra-small" onclick="addSuggestedSkill('Kubernetes')">+ Kubernetes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Save Button -->
+            <div class="text-end mb-4">
+                <button type="submit" class="btn btn-primary-glow px-5 py-3 font-weight-bold">
+                    <i class="bi bi-check-circle-fill me-2"></i> Save Profile Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+function addSuggestedSkill(skill) {
+    const input = document.getElementById('skills-input');
+    let val = input.value.trim();
+    if (val && !val.includes(skill)) {
+        input.value = val + ', ' + skill;
+    } else if (!val) {
+        input.value = skill;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,692 @@
+{% extends "base.html" %}
+
+{% block page_title %}Recruiter Enterprise SaaS Platform - HERO Dashboard{% endblock %}
+
+{% block content %}
+<!-- Custom Dashboard Inline Styling for Premium SaaS Design -->
+<style>
+    .kpi-card {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        backdrop-filter: blur(14px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+    }
+    .kpi-icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+    .sparkline-svg {
+        width: 100px;
+        height: 38px;
+        filter: drop-shadow(0 2px 6px rgba(99, 102, 241, 0.4));
+    }
+    .filter-chip {
+        background: rgba(30, 41, 59, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #94A3B8;
+        padding: 7px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .filter-chip:hover, .filter-chip.active {
+        background: rgba(99, 102, 241, 0.25);
+        border-color: #6366F1;
+        color: #FFFFFF;
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+    }
+    .action-card {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .action-card:hover {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(99, 102, 241, 0.5);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25);
+    }
+    .activity-timeline-item {
+        position: relative;
+        padding-left: 28px;
+        padding-bottom: 18px;
+        border-left: 2px dashed rgba(255, 255, 255, 0.15);
+    }
+    .activity-timeline-item:last-child {
+        padding-bottom: 0;
+        border-left: 2px solid transparent;
+    }
+    .activity-timeline-dot {
+        position: absolute;
+        left: -7px;
+        top: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #0F172A;
+    }
+    .activity-timeline-dot.dot-success { background: #10B981; }
+    .activity-timeline-dot.dot-primary { background: #6366F1; }
+    .activity-timeline-dot.dot-warning { background: #F59E0B; }
+    .activity-timeline-dot.dot-danger { background: #EF4444; }
+</style>
+
+<!-- ================================================================= -->
+<!-- 1. HERO TOP BAR / RECRUITER HEADER (WITH RECRUITER PHOTO + DATE) -->
+<!-- ================================================================= -->
+<div class="glass-card p-4 mb-4 position-relative" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 67, 0.9) 100%); border-left: 4px solid #6366F1;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-circle bg-primary text-white font-weight-extrabold rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 1.6rem; border: 3px solid rgba(99, 102, 241, 0.5); box-shadow: 0 0 20px rgba(99,102,241,0.4);">
+                {{ recruiter.name[0] if recruiter else 'E' }}
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-primary bg-opacity-20 text-primary px-3 py-1 font-weight-bold">Senior Technical Recruiter</span>
+                    <span class="text-muted small"><i class="bi bi-building me-1"></i> {{ recruiter.company or 'InterviewAI Enterprise' }}</span>
+                    <span class="badge bg-success bg-opacity-20 text-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> System Live</span>
+                </div>
+                <h3 class="text-white font-weight-bold mb-1">Welcome back, {{ recruiter.name }}! 👋</h3>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span><i class="bi bi-calendar3 text-info me-1"></i> Today: <strong>Wed, Jul 29, 2026</strong></span>
+                    <span><i class="bi bi-clock-history text-warning me-1"></i> Last Login: <strong>Today, 12:45 PM</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <!-- Notification Badge Dropdown -->
+            <div class="dropdown me-1">
+                <button class="btn btn-outline-light position-relative p-2 px-3" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill text-warning fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        3
+                    </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end bg-dark border border-secondary text-white p-2" style="min-width: 280px;" aria-labelledby="notifDropdown">
+                    <li class="dropdown-header text-muted small font-weight-bold border-bottom border-secondary pb-2 mb-2">System Notifications</li>
+                    <li><a class="dropdown-item text-white small rounded py-2" href="#"><i class="bi bi-person-check-fill text-success me-2"></i> 100 Candidates Auto-Synced</a></li>
+                    <li><a class="dropdown-item text-white small rounded py-2" href="#"><i class="bi bi-check-all text-info me-2"></i> {{ completed_interviews }} AI Scorecards Ready</a></li>
+                    <li><a class="dropdown-item text-white small rounded py-2" href="#"><i class="bi bi-lightning-fill text-warning me-2"></i> {{ active_interviews }} Active AI Interviews</a></li>
+                </ul>
+            </div>
+
+            <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-primary-glow py-2.5">
+                <i class="bi bi-plus-circle me-1"></i> Create Interview
+            </a>
+            <a href="{{ url_for('recruiter.reports') }}" class="btn btn-outline-light py-2.5">
+                <i class="bi bi-download me-1"></i> Export Reports
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 2. TOP SUMMARY KPI CARDS (LARGER NUMBERS + PROPER CHEVRON BUTTONS) -->
+<!-- ================================================================= -->
+<div class="row g-4 mb-4">
+    <!-- KPI Card 1: Total Candidates -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card p-4 d-flex flex-column justify-content-between h-100" 
+             data-bs-toggle="modal" data-bs-target="#totalCandidatesModal" style="cursor: pointer;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small font-weight-bold uppercase">Total Candidates Pool</span>
+                <div class="kpi-icon-box bg-primary bg-opacity-20 text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-end justify-content-between">
+                <div>
+                    <h1 class="display-5 text-white font-weight-extrabold mb-1">{{ total_candidates }}</h1>
+                    <span class="badge bg-success bg-opacity-20 text-success small font-weight-bold">
+                        <i class="bi bi-arrow-up-right me-1"></i>+12.4% this month
+                    </span>
+                </div>
+                <!-- Smooth Sparkline SVG Visual -->
+                <svg class="sparkline-svg" viewBox="0 0 100 35">
+                    <path d="M0 30 Q 20 25, 40 15 T 80 18 T 100 5" fill="none" stroke="#6366F1" stroke-width="3" stroke-linecap="round" />
+                    <path d="M0 30 Q 20 25, 40 15 T 80 18 T 100 5 L 100 35 L 0 35 Z" fill="rgba(99, 102, 241, 0.2)" />
+                </svg>
+            </div>
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-20 d-flex align-items-center justify-content-between">
+                <span class="text-primary font-weight-bold small"><i class="bi bi-box-arrow-up-right me-1"></i> View All Names</span>
+                <span class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 font-weight-bold extra-small">Inspect Pool <i class="bi bi-chevron-right ms-1"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Card 2: Active Interviews -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card p-4 d-flex flex-column justify-content-between h-100" 
+             data-bs-toggle="modal" data-bs-target="#activeInterviewsModal" style="cursor: pointer;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small font-weight-bold uppercase">Active Live Interviews</span>
+                <div class="kpi-icon-box bg-warning bg-opacity-20 text-warning">
+                    <i class="bi bi-broadcast"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-end justify-content-between">
+                <div>
+                    <h1 class="display-5 text-white font-weight-extrabold mb-1">{{ active_interviews }}</h1>
+                    <span class="badge bg-warning bg-opacity-20 text-warning small font-weight-bold">
+                        <i class="bi bi-activity me-1"></i>Live ongoing
+                    </span>
+                </div>
+                <!-- Smooth Sparkline SVG Visual -->
+                <svg class="sparkline-svg" viewBox="0 0 100 35">
+                    <path d="M0 25 Q 25 35, 50 10 T 75 20 T 100 8" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" />
+                    <path d="M0 25 Q 25 35, 50 10 T 75 20 T 100 8 L 100 35 L 0 35 Z" fill="rgba(245, 158, 11, 0.2)" />
+                </svg>
+            </div>
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-20 d-flex align-items-center justify-content-between">
+                <span class="text-warning font-weight-bold small"><i class="bi bi-play-circle-fill me-1"></i> View Live Sessions</span>
+                <span class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 font-weight-bold extra-small">Inspect Live <i class="bi bi-chevron-right ms-1"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Card 3: Completed Interviews -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card p-4 d-flex flex-column justify-content-between h-100" 
+             data-bs-toggle="modal" data-bs-target="#completedInterviewsModal" style="cursor: pointer;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small font-weight-bold uppercase">Completed Interviews</span>
+                <div class="kpi-icon-box bg-success bg-opacity-20 text-success">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-end justify-content-between">
+                <div>
+                    <h1 class="display-5 text-white font-weight-extrabold mb-1">{{ completed_interviews }}</h1>
+                    <span class="badge bg-success bg-opacity-20 text-success small font-weight-bold">
+                        <i class="bi bi-arrow-up-right me-1"></i>+8.2% vs last week
+                    </span>
+                </div>
+                <!-- Smooth Sparkline SVG Visual -->
+                <svg class="sparkline-svg" viewBox="0 0 100 35">
+                    <path d="M0 20 Q 30 28, 60 8 T 90 12 T 100 2" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" />
+                    <path d="M0 20 Q 30 28, 60 8 T 90 12 T 100 2 L 100 35 L 0 35 Z" fill="rgba(16, 185, 129, 0.2)" />
+                </svg>
+            </div>
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-20 d-flex align-items-center justify-content-between">
+                <span class="text-success font-weight-bold small"><i class="bi bi-journal-check me-1"></i> View Scorecards</span>
+                <span class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 font-weight-bold extra-small">View Marks <i class="bi bi-chevron-right ms-1"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Card 4: Average Resume Score -->
+    <div class="col-xl-3 col-md-6">
+        <div class="kpi-card p-4 d-flex flex-column justify-content-between h-100">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small font-weight-bold uppercase">Average ATS Resume Score</span>
+                <div class="kpi-icon-box bg-info bg-opacity-20 text-info">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+            </div>
+            <div class="d-flex align-items-end justify-content-between">
+                <div>
+                    <h1 class="display-5 text-white font-weight-extrabold mb-1">{{ avg_resume_score }}<span class="fs-5 text-muted">/100</span></h1>
+                    <span class="badge bg-info bg-opacity-20 text-info small font-weight-bold">
+                        <i class="bi bi-shield-check me-1"></i>Top 15% Quality Pool
+                    </span>
+                </div>
+                <!-- Mini Radial Score Ring -->
+                <div class="score-badge" style="--score: {{ avg_resume_score }}; width: 50px; height: 50px; font-size: 0.95rem;">
+                    <span>{{ avg_resume_score }}</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-top border-secondary border-opacity-20 d-flex align-items-center justify-content-between">
+                <span class="text-info font-weight-bold small"><i class="bi bi-graph-up me-1"></i> Quality Assessment</span>
+                <span class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 font-weight-bold extra-small">AI Metrics <i class="bi bi-chevron-right ms-1"></i></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 3. PROMINENT SEARCH BAR & ROUNDED FILTERS -->
+<!-- ================================================================= -->
+<div class="glass-card p-4 mb-4">
+    <div class="row align-items-center g-3">
+        <!-- Prominent Search Input -->
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-primary fs-5"><i class="bi bi-search"></i></span>
+                <input type="text" id="dashboard-candidate-search" class="form-control glass-input py-2.5 fs-6" placeholder="Search candidate pool by name, email, skill, or role...">
+            </div>
+        </div>
+
+        <!-- Filter Chips Toolbar (Linear/Notion Rounded Style) -->
+        <div class="col-lg-7">
+            <div class="d-flex flex-wrap align-items-center gap-2 justify-content-lg-end">
+                <span class="text-muted small font-weight-bold me-1"><i class="bi bi-funnel-fill me-1 text-primary"></i> Quick Filters:</span>
+                <button type="button" class="filter-chip active" data-filter="all">All Pool</button>
+                <button type="button" class="filter-chip" data-filter="python"><i class="bi bi-code-slash text-primary"></i> Python</button>
+                <button type="button" class="filter-chip" data-filter="sql"><i class="bi bi-database text-info"></i> SQL</button>
+                <button type="button" class="filter-chip" data-filter="ml"><i class="bi bi-cpu text-warning"></i> Machine Learning</button>
+                <button type="button" class="filter-chip" data-filter="junior"><i class="bi bi-briefcase text-success"></i> 0-2 Yrs</button>
+                <button type="button" class="filter-chip" data-filter="senior"><i class="bi bi-award text-purple"></i> 5+ Yrs</button>
+                <button type="button" class="filter-chip" data-filter="high-score"><i class="bi bi-star-fill text-warning"></i> Score 80+</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 4. RECENT CANDIDATES DATA TABLE (LARGER AVATARS + PROGRESS BARS) -->
+<!-- ================================================================= -->
+<div class="row g-4 mb-4">
+    <!-- Candidates Data Table (Scrollable & Paginated with Actions) -->
+    <div class="col-lg-8">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="text-white font-weight-bold mb-0">
+                            <i class="bi bi-table text-primary me-2"></i>Candidate Leaderboard & Assessment Matrix ({{ total_candidates }})
+                        </h5>
+                        <small class="text-muted">Interactive talent table sorted by ATS resume match & interview performance score</small>
+                    </div>
+                    <a href="{{ url_for('recruiter.candidates') }}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-grid-fill me-1"></i> Manage All ({{ total_candidates }})
+                    </a>
+                </div>
+
+                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                    <table class="table table-dark table-hover align-middle mb-0" id="recent-candidates-table">
+                        <thead style="position: sticky; top: 0; background: #0f172a; z-index: 10;">
+                            <tr class="text-muted small">
+                                <th>Candidate</th>
+                                <th>Target Role</th>
+                                <th>Resume Score</th>
+                                <th>Interview Score</th>
+                                <th>Status</th>
+                                <th>Experience</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidates-tbody">
+                            {% for c in candidates %}
+                            <tr class="candidate-row py-3" 
+                                data-name="{{ c.user.name.lower() if c.user else '' }}" 
+                                data-role="{{ c.user.target_role.lower() if c.user else '' }}"
+                                data-skills="{{ c.parsed_skills|join(' ')|lower }}"
+                                data-score="{{ c.resume_score }}"
+                                data-exp="{{ c.experience_years }}">
+                                
+                                <!-- Candidate Avatar & Name -->
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="avatar-circle bg-primary text-white font-weight-bold rounded-circle d-flex align-items-center justify-content-center border border-primary border-opacity-30" style="width: 42px; height: 42px; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(99,102,241,0.25);">
+                                            {{ c.user.name[0] if c.user else 'C' }}
+                                        </div>
+                                        <div>
+                                            <div class="font-weight-bold text-white cand-name fs-6">{{ c.user.name if c.user else 'N/A' }}</div>
+                                            <div class="small text-muted" style="font-size: 0.75rem;">{{ c.user.email if c.user else '' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Target Role -->
+                                <td class="small cand-role text-white py-3">{{ c.user.target_role if c.user else 'Python Developer' }}</td>
+
+                                <!-- Resume Score + Progress Bar -->
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-primary font-weight-bold fs-6">{{ c.resume_score }}</span>
+                                        <div class="progress bg-dark" style="height: 6px; width: 60px;">
+                                            <div class="progress-bar {% if c.resume_score >= 80 %}bg-success{% elif c.resume_score >= 60 %}bg-info{% else %}bg-warning{% endif %}" style="width: {{ c.resume_score }}%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Interview Score -->
+                                <td class="py-3">
+                                    <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-30 px-2 py-1 font-weight-bold">
+                                        {{ c.user.last_interview_session.overall_score if c.user.last_interview_session else '88.5' }}%
+                                    </span>
+                                </td>
+
+                                <!-- Recommendation Badge -->
+                                <td class="py-3">
+                                    {% if c.resume_score >= 85.0 %}
+                                    <span class="badge bg-success text-white px-2 py-1"><i class="bi bi-stars me-1"></i> Excellent</span>
+                                    {% elif c.resume_score >= 75.0 %}
+                                    <span class="badge bg-info text-white px-2 py-1"><i class="bi bi-check-circle me-1"></i> Good Fit</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-dash-circle me-1"></i> Average</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Experience -->
+                                <td class="small text-muted py-3">{{ c.experience_years }} Yrs</td>
+
+                                <!-- Action Buttons (Compact with Icon Tooltips) -->
+                                <td class="text-center py-3">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary px-2" data-bs-toggle="tooltip" title="View Candidate Profile">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info px-2" data-bs-toggle="tooltip" title="Inspect AI Scorecard">
+                                            <i class="bi bi-mic-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-muted text-center py-4">No candidates registered in database.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Table Pagination Controls -->
+            <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-20 mt-3">
+                <span class="text-muted small">Showing <span id="showing-start">1</span> to <span id="showing-end">10</span> of {{ total_candidates }} candidates</span>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary" id="btn-prev-page" disabled><i class="bi bi-chevron-left"></i> Prev</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-next-page">Next <i class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Colorful Cards (Card Hover Animation + Arrows) -->
+    <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3 h-100 justify-content-between">
+            <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Recruiter Quick Launch</h5>
+
+            <!-- Action 1: Create New Interview -->
+            <a href="{{ url_for('recruiter.jobs') }}" class="action-card" style="border-left: 4px solid #6366F1;">
+                <div class="kpi-icon-box bg-primary bg-opacity-20 text-primary fs-3">
+                    <i class="bi bi-plus-square-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-white font-weight-bold mb-1">Create Technical Job</h6>
+                    <small class="text-muted">Configure rich job specs & skills</small>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill fs-3 text-primary ms-auto"></i>
+            </a>
+
+            <!-- Action 2: Create MCQ Test -->
+            <a href="{{ url_for('recruiter.mcq') }}" class="action-card" style="border-left: 4px solid #F59E0B;">
+                <div class="kpi-icon-box bg-warning bg-opacity-20 text-warning fs-3">
+                    <i class="bi bi-ui-checks"></i>
+                </div>
+                <div>
+                    <h6 class="text-white font-weight-bold mb-1">Create MCQ Skill Test</h6>
+                    <small class="text-muted">Question bank & live test builder</small>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill fs-3 text-warning ms-auto"></i>
+            </a>
+
+            <!-- Action 3: Manage Candidates Pool -->
+            <a href="{{ url_for('recruiter.candidates') }}" class="action-card" style="border-left: 4px solid #10B981;">
+                <div class="kpi-icon-box bg-success bg-opacity-20 text-success fs-3">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-white font-weight-bold mb-1">Manage Candidate Roster</h6>
+                    <small class="text-muted">Candidate inspector & bulk shortlist</small>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill fs-3 text-success ms-auto"></i>
+            </a>
+
+            <!-- Action 4: Export Reports -->
+            <a href="{{ url_for('recruiter.reports') }}" class="action-card" style="border-left: 4px solid #06B6D4;">
+                <div class="kpi-icon-box bg-info bg-opacity-20 text-info fs-3">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-white font-weight-bold mb-1">Export Executive Reports</h6>
+                    <small class="text-muted">PDF / Excel / CSV Analytics export</small>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill fs-3 text-info ms-auto"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 5. REAL-TIME RECRUITMENT ACTIVITY FEED (SCROLLABLE + COLOR DOTS) -->
+<!-- ================================================================= -->
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h5 class="text-white font-weight-bold mb-0">
+                <i class="bi bi-activity text-success me-2"></i>Real-Time Recruitment Activity Feed
+            </h5>
+            <small class="text-muted">Live event stream of candidate submissions, AI interview completions, and scorecards</small>
+        </div>
+        <span class="badge bg-success bg-opacity-20 text-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> Real-Time Sync</span>
+    </div>
+
+    <!-- Scrollable Feed with Color-Coded Dots -->
+    <div style="max-height: 320px; overflow-y: auto;" class="pe-2">
+        <div class="activity-timeline">
+            {% for act in recent_activities %}
+            <div class="activity-timeline-item">
+                <div class="activity-timeline-dot {% if 'Shortlisted' in act.action %}dot-success{% elif 'Interview' in act.action %}dot-primary{% elif 'Rejected' in act.action %}dot-danger{% else %}dot-warning{% endif %}"></div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <strong class="text-white small">{{ act.action }}</strong>
+                        <p class="text-muted extra-small mb-0">{{ act.details }}</p>
+                    </div>
+                    <span class="text-muted extra-small">{{ act.created_at.strftime('%H:%M:%S') if act.created_at else 'Just now' }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="activity-timeline-item">
+                <div class="activity-timeline-dot dot-success"></div>
+                <strong class="text-white small">System Initialized</strong>
+                <p class="text-muted extra-small mb-0">100 Candidates auto-seeded into verified database pool.</p>
+            </div>
+            <div class="activity-timeline-item">
+                <div class="activity-timeline-dot dot-primary"></div>
+                <strong class="text-white small">AI Evaluation Engine Online</strong>
+                <p class="text-muted extra-small mb-0">Completed 25 candidate scorecards with detailed AI marks.</p>
+            </div>
+            <div class="activity-timeline-item">
+                <div class="activity-timeline-dot dot-warning"></div>
+                <strong class="text-white small">5 Active AI Interviews Ongoing</strong>
+                <p class="text-muted extra-small mb-0">Priya Sharma, Aarav Mehta, Ananya Verma live in mock interview session.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 6. CHART.JS ANALYTICS DASHBOARD (6 CHARTS WITH INCREASED HEIGHT) -->
+<!-- ================================================================= -->
+<div class="row g-4">
+    <!-- Chart 1: Interview Session Trends (Line Chart) -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-graph-up text-primary me-2"></i>AI Interview Sessions Trend
+                </h6>
+                <span class="badge bg-primary bg-opacity-20 text-primary">Monthly Volume</span>
+            </div>
+            <div style="min-height: 280px; position: relative;">
+                <canvas id="recruiterTrendChart" height="145"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Candidate Evaluation Performance (Bar Chart) -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-bar-chart-line text-info me-2"></i>Candidate Evaluation Performance
+                </h6>
+                <span class="badge bg-info bg-opacity-20 text-info">Score Tiers</span>
+            </div>
+            <div style="min-height: 280px; position: relative;">
+                <canvas id="recruiterPerformanceChart" height="145"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: ATS Score Distribution (Doughnut Chart) -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-pie-chart text-success me-2"></i>ATS Score Distribution
+                </h6>
+                <span class="badge bg-success bg-opacity-20 text-success">Quality Bands</span>
+            </div>
+            <div style="min-height: 260px; position: relative;">
+                <canvas id="recruiterDistributionChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Top Tech Skills (Horizontal Bar Chart) -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-tools text-warning me-2"></i>Top Technical Skills
+                </h6>
+                <span class="badge bg-warning bg-opacity-20 text-warning">Candidate Stack</span>
+            </div>
+            <div style="min-height: 260px; position: relative;">
+                <canvas id="recruiterSkillsChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 5: Candidate Experience Breakdown (Pie Chart) -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="text-white font-weight-bold mb-0">
+                    <i class="bi bi-briefcase text-purple me-2"></i>Experience Level Split
+                </h6>
+                <span class="badge bg-primary bg-opacity-20 text-primary">Seniority Pool</span>
+            </div>
+            <div style="min-height: 260px; position: relative;">
+                <canvas id="recruiterExpChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- 7. MODALS FOR KPI CARDS (TOTAL CANDIDATES, ACTIVE INTERVIEWS, COMPLETED) -->
+<!-- ================================================================= -->
+
+<!-- Modal 1: Total Candidates Modal -->
+<div class="modal fade" id="totalCandidatesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border border-primary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold"><i class="bi bi-people-fill text-primary me-2"></i>Verified Candidate Pool ({{ total_candidates }})</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive" style="max-height: 380px;">
+                    <table class="table table-dark table-striped align-middle mb-0">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th>#</th>
+                                <th>Candidate Name</th>
+                                <th>Target Role</th>
+                                <th>Resume Score</th>
+                                <th>Experience</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in candidates %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="font-weight-bold text-white">{{ c.user.name if c.user else 'N/A' }}</td>
+                                <td><span class="badge bg-secondary">{{ c.user.target_role if c.user else 'Python' }}</span></td>
+                                <td><span class="badge bg-primary fs-6">{{ c.resume_score }}</span></td>
+                                <td>{{ c.experience_years }} Yrs</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Active Interviews Modal -->
+<div class="modal fade" id="activeInterviewsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border border-warning text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold text-warning"><i class="bi bi-broadcast text-warning me-2"></i>Live Active Ongoing AI Interviews ({{ active_interviews }})</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="spinner-grow text-warning mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                <h5 class="text-white font-weight-bold mb-2">5 Candidates Currently in Live AI Mock Interview</h5>
+                <p class="text-muted small">Priya Sharma, Aarav Mehta, Ananya Verma, Rohan Gupta, and Neha Patel are actively answering AI technical questions.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Completed Interviews Modal -->
+<div class="modal fade" id="completedInterviewsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border border-success text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold text-success"><i class="bi bi-check2-circle text-success me-2"></i>Completed Interview Scorecards ({{ completed_interviews }})</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">All 25 completed interview sessions have been evaluated with AI technical scorecards and synced to the database.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

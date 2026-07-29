@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block page_title %}Live AI Technical Interview Workspace{% endblock %}
+
+{% block content %}
+<!-- Session Header Bar -->
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <span class="badge bg-primary px-3 py-2 me-2">Session #{{ session_obj.id }}</span>
+            <h3 class="text-white font-weight-bold d-inline align-middle">{{ session_obj.role_title }}</h3>
+            <p class="text-muted small mb-0 mt-1">Total Questions: {{ session_obj.total_questions }} | Status: <span class="text-capitalize text-info">{{ session_obj.status }}</span></p>
+        </div>
+        <div class="text-end">
+            <div class="text-muted small">Overall Session Score</div>
+            <div class="fs-2 font-weight-extrabold text-primary" id="overall-session-score">{{ session_obj.overall_score }}%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Questions Accordion / List -->
+<div class="row g-4">
+    {% for r in responses %}
+    <div class="col-12 question-card" id="q-card-{{ r.id }}">
+        <div class="glass-card p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="text-white font-weight-bold mb-0">
+                    <span class="text-primary me-2">Q{{ r.question_number }}.</span> {{ r.category }} Technical Question
+                </h5>
+                <button class="btn btn-sm btn-outline-info speak-question-btn" data-text="{{ r.question_text }}">
+                    <i class="bi bi-volume-up-fill me-1"></i> Listen to Question
+                </button>
+            </div>
+
+            <p class="text-light fs-5 mb-4 p-3 bg-dark rounded border border-secondary">{{ r.question_text }}</p>
+
+            <!-- User Answer Form -->
+            <div class="mb-3">
+                <label class="form-label text-muted small font-weight-bold">Your Technical Response</label>
+                <textarea id="answer-input-{{ r.id }}" class="form-control glass-input" rows="4" placeholder="Explain your answer clearly, including architectural concepts, code logic, and edge cases...">{{ r.user_answer or '' }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-end mb-2">
+                <button class="btn btn-primary-glow px-4 submit-answer-btn" data-response-id="{{ r.id }}" data-session-id="{{ session_obj.id }}">
+                    <i class="bi bi-send-check me-2"></i> Evaluate Answer with AI
+                </button>
+            </div>
+
+            <!-- Existing AI Evaluation Card (if already answered) -->
+            <div id="eval-result-{{ r.id }}" style="display: {% if r.user_answer %}block{% else %}none{% endif %};">
+                {% if r.user_answer %}
+                <div class="alert alert-dark border-primary mt-3 glass-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="text-primary mb-0"><i class="bi bi-cpu me-2"></i>AI Evaluation Result</h5>
+                        <span class="badge bg-primary fs-6">Score: {{ r.score }}/100</span>
+                    </div>
+                    <p class="mb-2"><strong>Feedback:</strong> {{ r.feedback }}</p>
+                    <div class="mb-3">
+                        <strong>Missing Key Concepts:</strong><br>
+                        {% for concept in r.missing_concepts %}
+                        <span class="skill-pill missing me-1 mt-1">{{ concept }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="p-3 rounded bg-dark border border-secondary text-light">
+                        <strong>Model Senior Answer:</strong><br>
+                        <small class="text-muted">{{ r.model_answer }}</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

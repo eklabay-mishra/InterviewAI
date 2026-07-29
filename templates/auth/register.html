@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block public_content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <h3 class="text-white font-weight-bold">Create an Account</h3>
+                <p class="text-muted small">Join InterviewAI as Candidate or Technical Recruiter</p>
+            </div>
+
+            <form action="{{ url_for('auth.register') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Full Name</label>
+                    <input type="text" name="name" class="form-control glass-input" placeholder="Eklabay Mishra" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Email Address</label>
+                    <input type="email" name="email" class="form-control glass-input" placeholder="recruiter@interviewai.com" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Password</label>
+                        <input type="password" name="password" class="form-control glass-input" placeholder="••••••••" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Account Role</label>
+                        <select name="role" class="form-select glass-input">
+                            <option value="candidate" selected>Candidate (Job Seeker)</option>
+                            <option value="recruiter">Recruiter / Employer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Target Role / Designation</label>
+                    <input type="text" name="target_role" class="form-control glass-input" value="Python Full Stack Developer" placeholder="e.g. Senior Technical Recruiter">
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 mt-3">
+                    Create Account <i class="bi bi-person-plus-fill ms-1"></i>
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top border-secondary">
+                <span class="text-muted small">Already registered?</span>
+                <a href="{{ url_for('auth.login') }}" class="text-primary font-weight-bold small text-decoration-none ms-1">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

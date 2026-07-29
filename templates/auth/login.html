@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block public_content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="avatar-circle bg-primary bg-opacity-20 text-primary mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-shield-lock-fill fs-3"></i>
+                </div>
+                <h3 class="text-white font-weight-bold">Welcome Back</h3>
+                <p class="text-muted small">Sign in to your InterviewAI account</p>
+            </div>
+
+            <!-- Quick Demo 1-Click Direct Logins -->
+            <div class="bg-dark p-3 rounded border border-secondary mb-4">
+                <div class="text-muted small font-weight-bold mb-2"><i class="bi bi-key-fill text-warning me-1"></i> Instant 1-Click Demo Logins:</div>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                    <a href="{{ url_for('auth.demo_candidate') }}" class="btn btn-sm btn-outline-primary w-100 py-2 text-start">
+                        <i class="bi bi-person-circle me-1"></i> Candidate (XYZ)
+                    </a>
+                    <a href="{{ url_for('auth.demo_recruiter') }}" class="btn btn-sm btn-outline-info w-100 py-2 text-start">
+                        <i class="bi bi-briefcase-fill me-1"></i> Recruiter (Eklabay)
+                    </a>
+                </div>
+            </div>
+
+            <form action="{{ url_for('auth.login') }}" method="POST" id="login-form">
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" id="email-input" class="form-control glass-input" placeholder="name@company.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label text-muted small font-weight-bold mb-0">Password</label>
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-primary small text-decoration-none">Forgot?</a>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" id="password-input" class="form-control glass-input" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 mt-3">
+                    Sign In <i class="bi bi-arrow-right-short ms-1 fs-5"></i>
+                </button>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top border-secondary">
+                <span class="text-muted small">Don't have an account?</span>
+                <a href="{{ url_for('auth.register') }}" class="text-primary font-weight-bold small text-decoration-none ms-1">Register Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+    const fillCand = document.getElementById('fill-candidate-btn');
+    const fillRec = document.getElementById('fill-recruiter-btn');
+
+    if (fillCand) {
+        fillCand.addEventListener('click', () => {
+            emailInput.value = 'candidate@interviewai.com';
+            passwordInput.value = 'candidate123';
+            document.getElementById('login-form').submit();
+        });
+    }
+
+    if (fillRec) {
+        fillRec.addEventListener('click', () => {
+            emailInput.value = 'recruiter@interviewai.com';
+            passwordInput.value = 'recruiter123';
+            document.getElementById('login-form').submit();
+        });
+    }
+});
+</script>
+{% endblock %}

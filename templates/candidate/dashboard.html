@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block page_title %}Candidate Overview & Skill Performance Hub{% endblock %}
+
+{% block content %}
+<!-- Welcome Card & Quick Launch Bar -->
+<div class="glass-card p-4 mb-4" style="background: linear-gradient(135deg, rgba(18, 24, 40, 0.95) 0%, rgba(30, 41, 67, 0.9) 100%); border-left: 4px solid var(--primary);">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h3 class="text-white font-weight-bold mb-1">Welcome back, {{ user.name }}! 👋</h3>
+            <p class="text-muted small mb-0">Target Role: <strong>{{ user.target_role or 'Python Full Stack Developer' }}</strong> | Resume Last Updated: <span class="text-info font-weight-bold">{{ resume_last_updated }}</span></p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('candidate.mock_interview') }}" class="btn btn-primary-glow">
+                <i class="bi bi-play-circle me-1"></i> Start AI Interview
+            </a>
+            <a href="{{ url_for('candidate.resume_analyzer') }}" class="btn btn-outline-light">
+                <i class="bi bi-file-earmark-code me-1"></i> Analyze Resume
+            </a>
+            <a href="{{ url_for('candidate.mcq_tests') }}" class="btn btn-outline-info">
+                <i class="bi bi-ui-checks me-1"></i> Take MCQ Test
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 4 Key Metric Cards (Including Profile Completion & Quick Actions) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between h-100">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">AI Resume Score</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ profile.resume_score }}/100</h2>
+                <span class="badge bg-success bg-opacity-20 text-success mt-2">ATS Verified</span>
+            </div>
+            <div class="score-badge" style="--score: {{ profile.resume_score }};">
+                <span>{{ profile.resume_score }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between h-100">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Total Mock Interviews</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ total_interviews }}</h2>
+                <span class="badge bg-primary bg-opacity-20 text-primary mt-2">Practice Sessions</span>
+            </div>
+            <div class="avatar-circle bg-primary bg-opacity-20 text-primary p-3 rounded-circle fs-3">
+                <i class="bi bi-robot"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between h-100">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Average Interview Score</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ avg_score }}%</h2>
+                <span class="badge bg-info bg-opacity-20 text-info mt-2">Quality Index</span>
+            </div>
+            <div class="avatar-circle bg-success bg-opacity-20 text-success p-3 rounded-circle fs-3">
+                <i class="bi bi-award-fill"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small font-weight-bold">Profile Completion</span>
+                    <span class="text-primary font-weight-bold">{{ profile_completion }}%</span>
+                </div>
+                <div class="progress bg-dark mb-2" style="height: 10px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ profile_completion }}%;" aria-valuenow="{{ profile_completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <a href="{{ url_for('candidate.profile') }}" class="small text-muted text-decoration-none">Complete profile checklist <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- Recommended Next Interview & Achievement Badges -->
+<div class="row g-4 mb-4">
+    <!-- Recommended Next Interview Card -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 border border-primary border-opacity-30">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="badge bg-primary bg-opacity-20 text-primary px-3 py-1 font-weight-bold">AI Recommendation</span>
+                <span class="text-muted small"><i class="bi bi-stars text-warning me-1"></i> Based on your target role</span>
+            </div>
+            <h5 class="text-white font-weight-bold mb-2">Recommended Next Technical Interview</h5>
+            <p class="text-muted small mb-3">Practice Senior Python Full Stack & REST API System Design questions tailored for your target role profile.</p>
+            <div class="d-flex align-items-center justify-content-between bg-dark p-3 rounded border border-secondary mb-3">
+                <div>
+                    <div class="font-weight-bold text-white small">Python & Flask Microservices Architecture</div>
+                    <div class="text-muted extra-small">20 Technical Questions | 45 Mins | Medium Difficulty</div>
+                </div>
+                <a href="{{ url_for('candidate.mock_interview') }}" class="btn btn-sm btn-primary-glow">Start Now</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Badges & Motivational Insights -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-shield-check text-warning me-2"></i>Candidate Achievements & Badges</h5>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-dark border border-warning text-warning p-2 px-3"><i class="bi bi-award-fill me-1"></i> 🥷 Python Ninja</span>
+                <span class="badge bg-dark border border-primary text-primary p-2 px-3"><i class="bi bi-database-fill me-1"></i> 🛢️ SQL Master</span>
+                <span class="badge bg-dark border border-success text-success p-2 px-3"><i class="bi bi-star-fill me-1"></i> 🏆 Top Candidate</span>
+                <span class="badge bg-dark border border-info text-info p-2 px-3"><i class="bi bi-lightning-fill me-1"></i> ⚡ Fast Responder</span>
+            </div>
+            <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary text-muted small">
+                <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>AI Insight:</strong> Candidate scores improve by 24% after completing 2+ mock interviews and uploading an ATS-optimized resume.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Trend Chart & Compact Notifications -->
+<div class="row g-4 mb-4">
+    <!-- Performance Trend Line Chart Widget -->
+    <div class="col-lg-8">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-graph-up text-primary me-2"></i>Performance Trend</h5>
+                <span class="badge bg-primary bg-opacity-20 text-primary">AI Score History</span>
+            </div>
+            <canvas id="candidateProgressionChart" height="110"></canvas>
+        </div>
+    </div>
+
+    <!-- Compact Notifications Panel -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-bell-fill text-warning me-2"></i>Notifications</h5>
+                <span class="badge bg-warning text-dark font-weight-bold">{{ user_notifications|length }}</span>
+            </div>
+            
+            <div class="d-flex flex-column gap-2" style="max-height: 220px; overflow-y: auto;">
+                {% for n in user_notifications %}
+                <div class="p-2 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small text-light mb-1">{{ n.message }}</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">{{ n.created_at.strftime('%b %d, %H:%M') if n.created_at else 'Recent' }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted small mb-0">No unread notifications.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Interviews Table -->
+<div class="glass-card p-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Recent Mock Interviews</h5>
+        <a href="{{ url_for('candidate.history') }}" class="btn btn-sm btn-outline-light">View Full History</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small">
+                    <th>Role / Technical Focus</th>
+                    <th>Questions</th>
+                    <th>Overall Score</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in recent_sessions %}
+                <tr>
+                    <td class="font-weight-bold text-white">{{ s.role_title }}</td>
+                    <td>{{ s.total_questions }} Qs</td>
+                    <td><span class="badge bg-primary fs-6">{{ s.overall_score }}%</span></td>
+                    <td>
+                        {% if s.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">In Progress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('candidate.interview_session', session_id=s.id) }}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-muted text-center py-4">No mock interview sessions recorded yet. Click 'Start AI Interview' to begin.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

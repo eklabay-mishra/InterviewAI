@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block page_title %}AI Technical Mock Interview Room{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Configure New AI Mock Interview Card -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h4 class="text-white font-weight-bold mb-0"><i class="bi bi-robot text-primary me-2"></i>Configure AI Technical Interview</h4>
+                <span class="badge bg-primary bg-opacity-20 text-primary border border-primary px-3 py-1 font-weight-bold">
+                    <i class="bi bi-cpu-fill me-1"></i> Dynamic Role Generator
+                </span>
+            </div>
+
+            <form action="{{ url_for('candidate.start_mock_interview') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Select Technical Role Focus</label>
+                    <select name="category" id="category-select" class="form-select glass-input">
+                        <option value="Python" selected>🐍 Python & Web Engineering</option>
+                        <option value="SQL">🗄️ SQL & Database Architecture</option>
+                        <option value="OOP">🧱 Object-Oriented Programming (OOP)</option>
+                        <option value="ML">🤖 Machine Learning & Data Science</option>
+                        <option value="HR">💼 HR & Behavioral Leadership</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Target Role Title</label>
+                    <input type="text" name="target_role" id="target-role-input" class="form-control glass-input" value="{{ user.target_role or 'Python Full Stack Developer' }}" placeholder="e.g. Senior Python Developer">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small font-weight-bold">Difficulty Level</label>
+                        <select name="difficulty" id="difficulty-select" class="form-select glass-input">
+                            <option value="Easy">Easy (15 Qs / 20m)</option>
+                            <option value="Medium" selected>Medium (25 Qs / 30m)</option>
+                            <option value="Hard">Hard (30 Qs / 45m)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small font-weight-bold">Questions</label>
+                        <select name="num_questions" id="questions-select" class="form-select glass-input">
+                            <option value="15">15 Questions</option>
+                            <option value="25" selected>25 Questions</option>
+                            <option value="30">30 Questions</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small font-weight-bold">Duration</label>
+                        <select name="duration" id="duration-select" class="form-select glass-input">
+                            <option value="20">20 Minutes</option>
+                            <option value="30" selected>30 Minutes</option>
+                            <option value="45">45 Minutes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hardware & Audio Toggles -->
+                <div class="glass-card p-3 mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="voiceToggle" checked>
+                            <label class="form-check-label text-white small font-weight-bold" for="voiceToggle">
+                                <i class="bi bi-volume-up-fill text-primary me-1"></i> AI Audio Speech Synthesis (ON)
+                            </label>
+                        </div>
+                        <span class="badge bg-success bg-opacity-20 text-success"><i class="bi bi-mic-fill me-1"></i> Mic Ready</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-muted extra-small"><i class="bi bi-webcam-fill me-1 text-info"></i> Webcam Preview: Connected</span>
+                        <span class="badge bg-info bg-opacity-20 text-info extra-small"><i class="bi bi-shield-check me-1"></i> Anti-Cheating Active</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 font-weight-bold mt-2">
+                    <i class="bi bi-play-circle-fill me-2 fs-5"></i> Launch Role-Specific AI Interview
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Overview & Hardware Status Card -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white font-weight-bold mb-3"><i class="bi bi-patch-check-fill text-success me-2"></i>Role-Specific Interview Rules</h4>
+            
+            <div class="d-flex flex-column gap-3">
+                <div class="p-3 bg-dark rounded border border-secondary d-flex align-items-center gap-3">
+                    <div class="avatar-circle bg-success bg-opacity-20 text-success p-3 rounded-circle fs-4">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <div>
+                        <div class="font-weight-bold text-white mb-1">Easy Level</div>
+                        <div class="small text-muted">15 Easy Questions | 20 Mins. Fundamental definitions, syntax, and basic concepts.</div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-dark rounded border border-secondary d-flex align-items-center gap-3">
+                    <div class="avatar-circle bg-primary bg-opacity-20 text-primary p-3 rounded-circle fs-4">
+                        <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <div>
+                        <div class="font-weight-bold text-white mb-1">Medium Level</div>
+                        <div class="small text-muted">25 Medium Questions | 30 Mins. Framework patterns, decorators, ORMs, and core algorithms.</div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-dark rounded border border-secondary d-flex align-items-center gap-3">
+                    <div class="avatar-circle bg-danger bg-opacity-20 text-danger p-3 rounded-circle fs-4">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div>
+                        <div class="font-weight-bold text-white mb-1">Hard Level</div>
+                        <div class="small text-muted">30 Hard Questions | 45 Mins. Advanced CPython internals, GIL, B-Trees, microservices, and concurrency.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const diffSelect = document.getElementById('difficulty-select');
+    const qSelect = document.getElementById('questions-select');
+    const dSelect = document.getElementById('duration-select');
+
+    if (diffSelect && qSelect && dSelect) {
+        diffSelect.addEventListener('change', () => {
+            const val = diffSelect.value;
+            if (val === 'Easy') {
+                qSelect.value = '15';
+                dSelect.value = '20';
+            } else if (val === 'Hard') {
+                qSelect.value = '30';
+                dSelect.value = '45';
+            } else {
+                qSelect.value = '25';
+                dSelect.value = '30';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

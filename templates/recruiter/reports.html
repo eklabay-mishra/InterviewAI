@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block page_title %}Enterprise Recruitment Export & Reporting Hub{% endblock %}
+
+{% block content %}
+<!-- 1. Report Category Hub Header -->
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h4 class="text-white font-weight-bold mb-1"><i class="bi bi-file-earmark-arrow-down-fill text-primary me-2"></i>Enterprise Recruitment Reporting & Export Hub</h4>
+            <p class="text-muted small mb-0">Generate comprehensive executive reports for Candidate Evaluation, AI Mock Interviews, MCQ Tests, Resume Analysis, and Overall Analytics in PDF, CSV, and Excel formats.</p>
+        </div>
+        <div>
+            <span class="badge bg-primary fs-6"><i class="bi bi-shield-check me-1"></i> Recruiter Enterprise Edition</span>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Interactive Report Filter Bar -->
+<div class="glass-card p-4 mb-4">
+    <h6 class="text-white font-weight-bold mb-3"><i class="bi bi-funnel-fill text-info me-2"></i>Configure Report Filters</h6>
+    <form action="{{ url_for('recruiter.export_candidates', format_type='pdf') }}" method="GET" class="row g-3" id="report-filter-form">
+        <!-- Filter: Select Candidate -->
+        <div class="col-md-3">
+            <label class="form-label text-muted small font-weight-bold">Select Candidate</label>
+            <select name="candidate_id" class="form-select glass-input">
+                <option value="">All Candidates Pool (100+)</option>
+                {% for c in candidates %}
+                <option value="{{ c.user_id }}">{{ c.user.name }} ({{ c.user.target_role }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filter: Date Range -->
+        <div class="col-md-3">
+            <label class="form-label text-muted small font-weight-bold">Date Range</label>
+            <select name="date_range" class="form-select glass-input">
+                <option value="last_30">Last 30 Days (Current Cycle)</option>
+                <option value="last_90">Last 90 Days (Quarterly)</option>
+                <option value="all_time">All Time Historical</option>
+            </select>
+        </div>
+
+        <!-- Filter: Category -->
+        <div class="col-md-3">
+            <label class="form-label text-muted small font-weight-bold">Interview Category</label>
+            <select name="category" class="form-select glass-input">
+                <option value="">All Categories (Python, SQL, OOP, ML, HR)</option>
+                <option value="Python">Python Technical</option>
+                <option value="SQL">SQL & Database Architecture</option>
+                <option value="OOP">OOP & System Design</option>
+                <option value="ML">Machine Learning</option>
+                <option value="HR">HR & Behavioral</option>
+            </select>
+        </div>
+
+        <!-- Filter: Recruiter Lead -->
+        <div class="col-md-3">
+            <label class="form-label text-muted small font-weight-bold">Assigned Recruiter</label>
+            <select name="recruiter_name" class="form-select glass-input">
+                <option value="Eklabay Mishra">Eklabay Mishra (Senior Recruiter)</option>
+                <option value="All">All Recruitment Leads</option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<!-- 3. 5 Core Enterprise Report Cards -->
+<div class="row g-4 mb-4">
+    <!-- Report 1: Candidate Report -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon-circle bg-primary bg-opacity-20 text-primary">
+                        <i class="bi bi-person-lines-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-primary">Report #1</span>
+                </div>
+                <h5 class="text-white font-weight-bold mb-2">1. Candidate Evaluation Report</h5>
+                <p class="text-muted small">Complete profiles, contact info, parsed skills, target roles, and resume scores across the talent pool.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ url_for('recruiter.export_candidates', format_type='pdf') }}?report_type=candidate" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='csv') }}?report_type=candidate" class="btn btn-sm btn-outline-success w-100"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='excel') }}?report_type=candidate" class="btn btn-sm btn-outline-info w-100"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 2: Interview Report -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon-circle bg-info bg-opacity-20 text-info">
+                        <i class="bi bi-mic-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-info">Report #2</span>
+                </div>
+                <h5 class="text-white font-weight-bold mb-2">2. AI Mock Interview Report</h5>
+                <p class="text-muted small">Technical AI interview scores, question responses breakdown, model answer comparisons, and missing concepts.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ url_for('recruiter.export_candidates', format_type='pdf') }}?report_type=interview" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='csv') }}?report_type=interview" class="btn btn-sm btn-outline-success w-100"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='excel') }}?report_type=interview" class="btn btn-sm btn-outline-info w-100"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 3: MCQ Report -->
+    <div class="col-md-4">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon-circle bg-warning bg-opacity-20 text-warning">
+                        <i class="bi bi-patch-check-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-warning">Report #3</span>
+                </div>
+                <h5 class="text-white font-weight-bold mb-2">3. MCQ Skill Test Matrix Report</h5>
+                <p class="text-muted small">Quiz scores, percentage accuracy, time taken per question, pass/fail status, and attempt history.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ url_for('recruiter.export_candidates', format_type='pdf') }}?report_type=mcq" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='csv') }}?report_type=mcq" class="btn btn-sm btn-outline-success w-100"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='excel') }}?report_type=mcq" class="btn btn-sm btn-outline-info w-100"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 4: Resume Analysis Report -->
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon-circle bg-success bg-opacity-20 text-success">
+                        <i class="bi bi-file-earmark-code-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-success">Report #4</span>
+                </div>
+                <h5 class="text-white font-weight-bold mb-2">4. Resume AI Analysis Report</h5>
+                <p class="text-muted small">In-depth ATS compatibility analysis, extracted technical skills, missing frameworks, and AI recommendation badges.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ url_for('recruiter.export_candidates', format_type='pdf') }}?report_type=resume" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='csv') }}?report_type=resume" class="btn btn-sm btn-outline-success w-100"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='excel') }}?report_type=resume" class="btn btn-sm btn-outline-info w-100"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 5: Overall Analytics Report -->
+    <div class="col-md-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="stat-icon-circle bg-danger bg-opacity-20 text-danger">
+                        <i class="bi bi-pie-chart-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark border border-secondary text-danger">Report #5</span>
+                </div>
+                <h5 class="text-white font-weight-bold mb-2">5. Overall Recruitment Analytics Report</h5>
+                <p class="text-muted small">High-level executive dashboard summary, candidate skill gap distribution, and volume trends over time.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <a href="{{ url_for('recruiter.export_candidates', format_type='pdf') }}?report_type=analytics" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-filetype-pdf"></i> PDF</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='csv') }}?report_type=analytics" class="btn btn-sm btn-outline-success w-100"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{{ url_for('recruiter.export_candidates', format_type='excel') }}?report_type=analytics" class="btn btn-sm btn-outline-info w-100"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Recent Exports Table -->
+<div class="glass-card p-4">
+    <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Recent Generated Exports & Downloads</h5>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small">
+                    <th>Report Name</th>
+                    <th>Category Type</th>
+                    <th>Format</th>
+                    <th>Generated Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exp in recent_exports %}
+                <tr>
+                    <td class="font-weight-bold text-white">{{ exp.report_name }}</td>
+                    <td><span class="badge bg-dark border border-secondary text-light">{{ exp.type }}</span></td>
+                    <td>
+                        {% if exp.format == 'PDF' %}
+                        <span class="badge bg-primary">PDF</span>
+                        {% elif exp.format == 'CSV' %}
+                        <span class="badge bg-success">CSV</span>
+                        {% else %}
+                        <span class="badge bg-info">Excel (.xlsx)</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ exp.date }}</td>
+                    <td>
+                        <a href="{{ url_for('recruiter.export_candidates', format_type=exp.format.lower()) }}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-download me-1"></i> Re-Download
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

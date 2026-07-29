@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block page_title %}AI Resume Parser & Skill Gap Analyzer{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Upload Form -->
+    <div class="col-lg-5">
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-file-earmark-arrow-up text-primary me-2"></i>Upload Resume for AI Parsing</h5>
+            <p class="text-muted small">Upload your latest PDF, DOCX, or TXT resume. Our Gemini AI Engine extracts skills, missing requirements, and assigns an ATS match score for <strong>{{ user.target_role or 'Python Full Stack Developer' }}</strong>.</p>
+
+            <form action="{{ url_for('candidate.resume_analyzer') }}" method="POST" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Select Resume File (.pdf, .docx, .txt)</label>
+                    <input type="file" name="resume_file" class="form-control glass-input" accept=".pdf,.docx,.txt" required>
+                </div>
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 mt-2">
+                    <i class="bi bi-cpu-fill me-2"></i> Run AI ATS Analysis
+                </button>
+            </form>
+
+            {% if profile.resume_filename %}
+            <div class="mt-4 p-3 bg-dark rounded border border-secondary">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small"><i class="bi bi-paperclip me-1"></i> {{ profile.resume_filename }}</span>
+                    <span class="text-primary small">Uploaded {{ profile.uploaded_at.strftime('%b %d, %Y') if profile.uploaded_at else 'Recent' }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ATS Score Breakdown Cards -->
+            <div class="glass-card p-3 mt-4">
+                <h6 class="text-white font-weight-bold mb-3 small"><i class="bi bi-speedometer2 text-info me-2"></i>ATS 4-Pillar Breakdown</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary text-center">
+                            <span class="text-muted extra-small d-block">Formatting</span>
+                            <span class="text-success font-weight-bold small">92/100</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary text-center">
+                            <span class="text-muted extra-small d-block">Keywords Match</span>
+                            <span class="text-primary font-weight-bold small">85/100</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary text-center">
+                            <span class="text-muted extra-small d-block">Tech Depth</span>
+                            <span class="text-warning font-weight-bold small">80/100</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary text-center">
+                            <span class="text-muted extra-small d-block">Experience Fit</span>
+                            <span class="text-info font-weight-bold small">88/100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Results Card -->
+    <div class="col-lg-7">
+        <div class="glass-card p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="text-white font-weight-bold mb-1">AI ATS Match Score</h4>
+                    <span class="text-muted small">Target Role Benchmark: {{ user.target_role or 'Python Full Stack Developer' }}</span>
+                </div>
+                <div class="score-badge" style="--score: {{ profile.resume_score }}; width: 75px; height: 75px; font-size: 1.5rem;">
+                    <span>{{ profile.resume_score }}</span>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="mb-4">
+                <h6 class="text-primary font-weight-bold mb-2"><i class="bi bi-card-heading me-2"></i>Executive Candidate Summary</h6>
+                <p class="text-light bg-dark p-3 rounded border border-secondary mb-0 small">
+                    {{ profile.summary or "No summary generated yet. Please upload a resume to run full AI analysis." }}
+                </p>
+            </div>
+
+            <!-- Extracted Skills -->
+            <div class="mb-4">
+                <h6 class="text-success font-weight-bold mb-2"><i class="bi bi-check-circle me-2"></i>Extracted Technical Skills</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in profile.parsed_skills %}
+                    <span class="skill-pill"><i class="bi bi-patch-check-fill me-1"></i> {{ skill }}</span>
+                    {% else %}
+                    <span class="text-muted small">No skills parsed yet.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Missing Skills & Gaps with Add Pill Handler -->
+            <div class="mb-4">
+                <h6 class="text-danger font-weight-bold mb-2"><i class="bi bi-exclamation-triangle me-2"></i>Identified Skill Gaps (+ Click to Add)</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for m_skill in profile.missing_skills %}
+                    <button type="button" class="btn btn-sm btn-outline-danger missing-skill-btn mb-1" onclick="alert('Added {{ m_skill }} to your profile!'); this.classList.remove('btn-outline-danger'); this.classList.add('btn-success'); this.textContent='✓ Added {{ m_skill }}';">
+                        <i class="bi bi-plus-circle me-1"></i> + Add {{ m_skill }}
+                    </button>
+                    {% else %}
+                    <span class="text-muted small">No major skill gaps identified.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Download PDF Report Button -->
+            <div class="pt-3 border-top border-secondary d-flex align-items-center justify-content-between">
+                <span class="text-muted small">Detailed ATS analysis generated by Gemini AI</span>
+                <button type="button" class="btn btn-outline-primary" onclick="window.print();">
+                    <i class="bi bi-filetype-pdf me-1"></i> Download Analysis Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

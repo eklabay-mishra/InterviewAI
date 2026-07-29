@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}InterviewAI - AI-Powered Technical Interview Platform{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {% if session.get('user_id') %}
+    <!-- Logged In Layout with Sidebar & Topbar -->
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <a href="{{ url_for('auth.dashboard_redirect') }}" class="sidebar-brand">
+                <i class="bi bi-cpu-fill text-primary"></i>
+                <span>Interview<span class="text-primary">AI</span></span>
+            </a>
+            
+            <nav class="sidebar-nav">
+                {% if session.get('user_role') == 'candidate' %}
+                    <a href="{{ url_for('candidate.dashboard') }}" class="nav-link-custom {% if request.endpoint == 'candidate.dashboard' %}active{% endif %}">
+                        <i class="bi bi-grid-1x2-fill"></i> Candidate Dashboard
+                    </a>
+                    <a href="{{ url_for('candidate.resume_analyzer') }}" class="nav-link-custom {% if request.endpoint == 'candidate.resume_analyzer' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-code-fill"></i> AI Resume Analyzer
+                    </a>
+                    <a href="{{ url_for('candidate.mock_interview') }}" class="nav-link-custom {% if request.endpoint in ['candidate.mock_interview', 'candidate.interview_session'] %}active{% endif %}">
+                        <i class="bi bi-robot"></i> AI Mock Interview
+                    </a>
+                    <a href="{{ url_for('candidate.mcq_tests') }}" class="nav-link-custom {% if request.endpoint == 'candidate.mcq_tests' %}active{% endif %}">
+                        <i class="bi bi-patch-question-fill"></i> MCQ Skill Tests
+                    </a>
+                    <a href="{{ url_for('candidate.history') }}" class="nav-link-custom {% if request.endpoint == 'candidate.history' %}active{% endif %}">
+                        <i class="bi bi-clock-history"></i> History & Results
+                    </a>
+                    <a href="{{ url_for('candidate.profile') }}" class="nav-link-custom {% if request.endpoint == 'candidate.profile' %}active{% endif %}">
+                        <i class="bi bi-person-circle"></i> Profile & Skills
+                    </a>
+
+                {% elif session.get('user_role') == 'recruiter' %}
+                    <a href="{{ url_for('recruiter.dashboard') }}" class="nav-link-custom {% if request.endpoint == 'recruiter.dashboard' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i> Recruiter Dashboard
+                    </a>
+                    <a href="{{ url_for('recruiter.candidates') }}" class="nav-link-custom {% if request.endpoint in ['recruiter.candidates', 'recruiter.candidate_detail'] %}active{% endif %}">
+                        <i class="bi bi-people-fill"></i> Manage Candidates
+                    </a>
+                    <a href="{{ url_for('recruiter.jobs') }}" class="nav-link-custom {% if request.endpoint == 'recruiter.jobs' %}active{% endif %}">
+                        <i class="bi bi-briefcase-fill"></i> Create & Manage Interviews
+                    </a>
+                    <a href="{{ url_for('recruiter.mcq') }}" class="nav-link-custom {% if request.endpoint == 'recruiter.mcq' %}active{% endif %}">
+                        <i class="bi bi-ui-checks"></i> Create MCQ Tests
+                    </a>
+                    <a href="{{ url_for('recruiter.reports') }}" class="nav-link-custom {% if request.endpoint == 'recruiter.reports' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-arrow-down-fill"></i> Export Reports
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="p-3 border-top border-secondary">
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="top-header">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="mb-0 text-white font-weight-bold">{% block page_title %}Dashboard{% endblock %}</h5>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary position-relative text-light" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell-fill"></i>
+                            {% if unread_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ unread_count }}
+                            </span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark glass-card p-2" style="width: 320px;">
+                            <li class="dropdown-header text-primary font-weight-bold">Notifications</li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% for n in user_notifications %}
+                            <li class="p-2 border-bottom border-secondary small d-flex justify-content-between align-items-center" id="notif-item-{{ n.id }}">
+                                <span>{{ n.message }}</span>
+                                <button class="btn btn-sm btn-link text-muted mark-read-btn" data-id="{{ n.id }}"><i class="bi bi-check2"></i></button>
+                            </li>
+                            {% else %}
+                            <li class="p-2 text-muted small text-center">No new notifications</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- User Badge -->
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle bg-primary text-white font-weight-bold d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px;">
+                            {{ session.get('user_name', 'E')[0] }}
+                        </div>
+                        <div class="d-none d-md-block text-start">
+                            <div class="text-white font-weight-bold small">{{ session.get('user_name') }}</div>
+                            <div class="text-muted text-uppercase" style="font-size: 0.7rem;">{{ session.get('user_role') }} | {{ session.get('user_company', 'InterviewAI') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Container Body -->
+            <div class="p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show glass-card mb-4" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    {% else %}
+    <!-- Public Layout -->
+    <div class="public-container">
+        <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
+        <nav class="navbar navbar-expand-lg navbar-dark top-header">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-2 font-weight-bold fs-4" href="{{ url_for('index') }}">
+                    <i class="bi bi-cpu-fill text-primary"></i> Interview<span class="text-primary">AI</span>
+                </a>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light px-4">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary-glow px-4">Register Free</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container py-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show glass-card mb-4" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block public_content %}{% endblock %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/interview.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mcq.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

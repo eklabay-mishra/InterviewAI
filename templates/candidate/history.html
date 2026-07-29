@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block page_title %}Candidate Assessment History & Reports{% endblock %}
+
+{% block content %}
+<!-- Top Summary Metric Cards (4 Cards) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Total Interviews</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ total_interviews }}</h2>
+            </div>
+            <div class="avatar-circle bg-primary bg-opacity-20 text-primary p-3 rounded-circle fs-3">
+                <i class="bi bi-robot"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Average Score</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ avg_score }}%</h2>
+            </div>
+            <div class="avatar-circle bg-info bg-opacity-20 text-info p-3 rounded-circle fs-3">
+                <i class="bi bi-bar-chart-line-fill"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Highest Score</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ highest_score }}%</h2>
+            </div>
+            <div class="avatar-circle bg-success bg-opacity-20 text-success p-3 rounded-circle fs-3">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small font-weight-bold d-block mb-1">Total MCQs</span>
+                <h2 class="text-white font-weight-extrabold mb-0">{{ total_mcqs }}</h2>
+            </div>
+            <div class="avatar-circle bg-warning bg-opacity-20 text-warning p-3 rounded-circle fs-3">
+                <i class="bi bi-ui-checks"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weak Topic Analysis & Compare Attempts Bar -->
+<div class="row g-4 mb-4">
+    <!-- Weak Topic Analysis Card -->
+    <div class="col-lg-8">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Weak Topic Analysis & Focus Areas</h5>
+                <span class="badge bg-warning bg-opacity-20 text-warning">AI Detected</span>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded bg-dark border border-secondary">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-white small font-weight-bold">Async I/O & Microservices</span>
+                            <span class="text-warning small font-weight-bold">64% Match</span>
+                        </div>
+                        <div class="progress bg-dark mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 64%;"></div>
+                        </div>
+                        <span class="text-muted extra-small">Recommended: Review Python `asyncio` and event loops.</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded bg-dark border border-secondary">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-white small font-weight-bold">SQL Indexing & Joins</span>
+                            <span class="text-info small font-weight-bold">78% Match</span>
+                        </div>
+                        <div class="progress bg-dark mb-2" style="height: 6px;">
+                            <div class="progress-bar bg-info" style="width: 78%;"></div>
+                        </div>
+                        <span class="text-muted extra-small">Recommended: Practice B-Tree indexing query plans.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Attempts Button Card -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between text-center">
+            <div>
+                <i class="bi bi-arrow-left-right text-primary display-4 mb-2"></i>
+                <h5 class="text-white font-weight-bold">Compare Previous Attempts</h5>
+                <p class="text-muted small mb-3">Compare your Attempt #1 vs Attempt #2 interview scores side-by-side.</p>
+            </div>
+            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#compareModal">
+                <i class="bi bi-layout-split me-1"></i> Open Side-by-Side Comparison
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Category Filters Toolbar -->
+<div class="glass-card p-4 mb-4">
+    <form action="{{ url_for('candidate.history') }}" method="GET" class="row align-items-center g-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" class="form-control glass-input" value="{{ search_query }}" placeholder="Search history by role or title...">
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <select name="category" class="form-select glass-input">
+                <option value="all" {% if selected_category == 'all' or not selected_category %}selected{% endif %}>All Categories</option>
+                <option value="python" {% if selected_category == 'python' %}selected{% endif %}>Python & Web Engineering</option>
+                <option value="sql" {% if selected_category == 'sql' %}selected{% endif %}>SQL & Databases</option>
+                <option value="backend" {% if selected_category == 'backend' %}selected{% endif %}>Backend & System Design</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary-glow w-100">Filter</button>
+            <a href="{{ url_for('candidate.download_pdf_report') }}" class="btn btn-outline-light" title="Download Full PDF Report">
+                <i class="bi bi-file-earmark-arrow-down-fill"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- AI Mock Interview History Table -->
+<div class="glass-card p-4 mb-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="text-white font-weight-bold mb-0"><i class="bi bi-robot text-primary me-2"></i>AI Mock Interview History</h5>
+        <a href="{{ url_for('candidate.download_pdf_report') }}" class="btn btn-sm btn-outline-light">
+            <i class="bi bi-download me-1"></i> Download PDF Summary
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small">
+                    <th>Date</th>
+                    <th>Role / Focus</th>
+                    <th>Questions</th>
+                    <th>Overall Score</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td class="small text-muted">{{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '' }}</td>
+                    <td class="font-weight-bold text-white">{{ s.role_title }}</td>
+                    <td>{{ s.total_questions }} Qs</td>
+                    <td><span class="badge bg-primary fs-6">{{ s.overall_score }}%</span></td>
+                    <td>
+                        {% if s.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">In Progress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('candidate.interview_session', session_id=s.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> View AI Feedback
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-muted text-center py-4">No matching interview history records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Side-by-Side Comparison Modal -->
+<div class="modal fade" id="compareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border border-primary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold text-primary"><i class="bi bi-layout-split me-2"></i>Side-by-Side Attempt Comparison</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-dark border border-secondary text-center">
+                            <span class="badge bg-secondary mb-2">Attempt #1 (Initial)</span>
+                            <h3 class="text-warning font-weight-bold">72.5%</h3>
+                            <p class="text-muted small mb-0">Missing concepts: SQL indexing, async event loop</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded bg-dark border border-primary text-center">
+                            <span class="badge bg-success mb-2">Attempt #2 (Latest)</span>
+                            <h3 class="text-success font-weight-bold">88.0%</h3>
+                            <p class="text-muted small mb-0">Improved score by +15.5%! Strong solid answers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

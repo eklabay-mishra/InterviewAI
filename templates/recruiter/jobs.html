@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block page_title %}Recruiter Technical Job Postings Management{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Create Job Form -->
+    <div class="col-lg-5">
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Create Technical Interview Job</h5>
+
+            <form action="{{ url_for('recruiter.jobs') }}" method="POST">
+                <!-- Title -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Job Title</label>
+                    <input type="text" name="title" class="form-control glass-input" placeholder="e.g. Senior Python Full Stack Developer" required>
+                </div>
+
+                <div class="row">
+                    <!-- Role Type -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Role Type</label>
+                        <input type="text" name="role_type" class="form-control glass-input" value="Python Developer" required>
+                    </div>
+                    <!-- Experience Level -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Experience Level</label>
+                        <select name="experience_level" class="form-select glass-input">
+                            <option value="Junior">Junior (0-2 Yrs)</option>
+                            <option value="Mid Level" selected>Mid Level (3-5 Yrs)</option>
+                            <option value="Senior">Senior (5+ Yrs)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Interview Type & Number of Questions -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Interview Type</label>
+                        <select name="interview_type" class="form-select glass-input">
+                            <option value="Technical" selected>Technical</option>
+                            <option value="HR">HR & Behavioral</option>
+                            <option value="Mixed">Mixed (Tech + HR)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Number of Questions</label>
+                        <select name="total_questions" class="form-select glass-input">
+                            <option value="10">10 Questions</option>
+                            <option value="20" selected>20 Questions</option>
+                            <option value="30">30 Questions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Time Limit & Pass Score -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Time Limit (Minutes)</label>
+                        <input type="number" name="time_limit" class="form-control glass-input" value="45" min="15" max="180">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Pass Score (%)</label>
+                        <input type="number" name="pass_score" class="form-control glass-input" value="70" min="50" max="100">
+                    </div>
+                </div>
+
+                <!-- Skills Required Tag Selector -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Skills Required (Click tags or type comma-separated)</label>
+                    <div class="mb-2">
+                        <span class="badge bg-dark border border-primary text-primary me-1 cursor-pointer skill-tag-btn" data-skill="Python">+ Python</span>
+                        <span class="badge bg-dark border border-info text-info me-1 cursor-pointer skill-tag-btn" data-skill="SQL">+ SQL</span>
+                        <span class="badge bg-dark border border-warning text-warning me-1 cursor-pointer skill-tag-btn" data-skill="Flask">+ Flask</span>
+                        <span class="badge bg-dark border border-success text-success me-1 cursor-pointer skill-tag-btn" data-skill="REST API">+ REST API</span>
+                        <span class="badge bg-dark border border-danger text-danger me-1 cursor-pointer skill-tag-btn" data-skill="Git">+ Git</span>
+                    </div>
+                    <input type="text" id="skills-required-input" name="skills_required" class="form-control glass-input" value="Python, Flask, SQL, REST API, Git" placeholder="Python, SQL, Flask">
+                </div>
+
+                <!-- Rich Styled Description Area -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small font-weight-bold">Rich Job Description & Assessment Criteria</label>
+                    <textarea name="description" class="form-control glass-input font-monospace small" rows="5" placeholder="Enter detailed job specification, mandatory tech stack, and evaluation rubric..." required>• Build and maintain high-performance backend APIs using Flask & MySQL.
+• Design normalized relational SQL database schemas.
+• Write clean, testable Python code adhering to SOLID principles.</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100 py-3 mt-2">
+                    <i class="bi bi-check-circle me-1"></i> Publish Job Posting
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Jobs Table with Edit, Preview, Assign, Delete -->
+    <div class="col-lg-7">
+        <div class="glass-card p-4">
+            <h5 class="text-white font-weight-bold mb-3"><i class="bi bi-briefcase-fill text-info me-2"></i>Active Recruiter Job Postings</h5>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Title & Type</th>
+                            <th>Questions & Time</th>
+                            <th>Skills Required</th>
+                            <th>Status</th>
+                            <th class="text-center" style="min-width: 220px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for j in jobs %}
+                        <tr>
+                            <td>
+                                <div class="font-weight-bold text-white fs-6">{{ j.title }}</div>
+                                <span class="badge bg-primary bg-opacity-20 text-primary me-1">{{ j.interview_type if j.interview_type else 'Technical' }}</span>
+                                <span class="badge bg-dark border border-secondary text-muted">{{ j.experience_level }}</span>
+                            </td>
+                            <td>
+                                <div class="text-white small font-weight-bold">{{ j.total_questions if j.total_questions else 20 }} Questions</div>
+                                <div class="small text-muted"><i class="bi bi-clock me-1"></i>{{ j.time_limit if j.time_limit else 45 }} Mins</div>
+                            </td>
+                            <td>
+                                {% for s in j.skills_required[:3] %}
+                                <span class="skill-pill me-1 mb-1">{{ s }}</span>
+                                {% endfor %}
+                            </td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <!-- Action Buttons: Edit, Preview, Assign Candidates, Delete -->
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#previewModal-{{ j.id }}" title="Preview Spec">
+                                        <i class="bi bi-eye"></i> Preview
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editModal-{{ j.id }}" title="Edit Job">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignModal-{{ j.id }}" title="Assign Candidates">
+                                        <i class="bi bi-person-plus"></i> Assign
+                                    </button>
+                                    <form action="{{ url_for('recruiter.delete_job', job_id=j.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this job?');">
+                                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-muted text-center py-4">No job postings created yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals for Active Jobs -->
+{% for j in jobs %}
+<!-- 1. Preview Modal -->
+<div class="modal fade" id="previewModal-{{ j.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold"><i class="bi bi-eye text-info me-2"></i>Job Specification Preview - {{ j.title }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="glass-card p-3 mb-3">
+                    <span class="text-muted small">Role Type: {{ j.role_type }} | Experience: {{ j.experience_level }}</span>
+                    <h5 class="text-white font-weight-bold mt-1">{{ j.title }}</h5>
+                    <p class="text-info small mb-0">Interview Type: {{ j.interview_type if j.interview_type else 'Technical' }} | Pass Score: {{ j.pass_score }}%</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted small font-weight-bold">Job Description</h6>
+                    <p class="text-white small font-monospace bg-dark p-3 rounded border border-secondary">{{ j.description }}</p>
+                </div>
+                <div>
+                    <h6 class="text-muted small font-weight-bold">Skills Required</h6>
+                    {% for s in j.skills_required %}
+                    <span class="badge bg-primary me-1 mb-1">{{ s }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Edit Modal -->
+<div class="modal fade" id="editModal-{{ j.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold"><i class="bi bi-pencil text-warning me-2"></i>Edit Job Posting - {{ j.title }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('recruiter.edit_job', job_id=j.id) }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Job Title</label>
+                        <input type="text" name="title" class="form-control glass-input" value="{{ j.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Skills (Comma-separated)</label>
+                        <input type="text" name="skills_required" class="form-control glass-input" value="{{ j.skills_required|join(', ') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small font-weight-bold">Description</label>
+                        <textarea name="description" class="form-control glass-input" rows="4" required>{{ j.description }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-glow">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Assign Candidates Modal -->
+<div class="modal fade" id="assignModal-{{ j.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title font-weight-bold"><i class="bi bi-person-plus text-primary me-2"></i>Assign Candidates to {{ j.title }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Select candidate to assign for live AI Interview assessment under this job specification:</p>
+                <select class="form-select glass-input mb-3">
+                    {% for cand in candidates %}
+                    <option value="{{ cand.id }}">{{ cand.name }} ({{ cand.email }})</option>
+                    {% endfor %}
+                </select>
+                <div class="alert alert-info small mb-0">
+                    <i class="bi bi-info-circle me-1"></i> Selected candidate will receive an instant notification in their dashboard.
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Assign Candidate</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('skills-required-input');
+    document.querySelectorAll('.skill-tag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const skill = btn.getAttribute('data-skill');
+            let current = input.value.split(',').map(s => s.trim()).filter(Boolean);
+            if (!current.includes(skill)) {
+                current.push(skill);
+                input.value = current.join(', ');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
